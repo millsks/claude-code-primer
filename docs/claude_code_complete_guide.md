@@ -696,7 +696,7 @@ A good `CLAUDE.md` answers four questions Claude cannot easily answer by reading
 3. **What conventions must I follow?** (things that diverge from common defaults)
 4. **What must I never touch?** (areas that are off-limits and why)
 
-```markdown
+``markdown
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working
@@ -704,7 +704,7 @@ with code in this repository.
 
 ## Commands
 
-``bash
+```bash
 # Install
 pixi install
 
@@ -719,7 +719,7 @@ pytest --cov=src --cov-report=term-missing
 # Linting / formatting
 ruff check . && ruff format .
 mypy src/
-``
+```
 
 ## Architecture
 
@@ -746,7 +746,7 @@ Never import SQLAlchemy models into the domain layer.
 - `alembic/versions/` — migration files are immutable once merged
 - `.github/workflows/` — CI/CD owned by the platform team
 - `infrastructure/` — Terraform managed separately, never edit here
-```
+``
 
 Notice what this example does **not** include: it doesn't explain what FastAPI is, doesn't list every file in the project, and doesn't repeat information already in `pyproject.toml`. Claude can read those files. `CLAUDE.md` fills the gaps that code and config can't.
 
@@ -791,7 +791,7 @@ None of this is actionable or project-specific. Claude already knows all of it.
 
 For sections that are long or change independently, you can pull in external files with `@path/to/file`:
 
-```markdown
+``markdown
 # CLAUDE.md
 
 ## Architecture
@@ -801,11 +801,11 @@ For sections that are long or change independently, you can pull in external fil
 @docs/api-conventions.md
 
 ## Commands
-``bash
+```bash
 pytest -x
 ruff check .
-``
 ```
+``
 
 Claude reads the referenced files at session start, exactly as if their content were inline. This is useful for:
 - Keeping `CLAUDE.md` short while linking to living documentation
