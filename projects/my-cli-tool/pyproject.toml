@@ -26,24 +26,86 @@ testpaths = ["tests"]
 addopts   = "-v --tb=short"
 
 # ---------------------------------------------------------------------------
+# coverage
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+omit = ["*/logwatch/__main__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+]
+
+# ---------------------------------------------------------------------------
 # ruff
 # ---------------------------------------------------------------------------
 [tool.ruff]
-line-length = 88
+line-length = 120
 src         = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "RUF"]
-ignore = ["E501"]
+select = ["E", "F", "I", "UP", "B", "RUF", "D"]
+ignore = ["E501", "D107"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.isort]
 known-first-party = ["logwatch"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]   # docstring rules don't apply to test files
 
 # ---------------------------------------------------------------------------
 # mypy
 # ---------------------------------------------------------------------------
 [tool.mypy]
-python_version    = "3.12"
+python_version    = "3.13"
 strict            = true
 warn_return_any   = true
 warn_unused_configs = true
+
+# ---------------------------------------------------------------------------
+# git-cliff
+# ---------------------------------------------------------------------------
+[tool.git-cliff.changelog]
+header = """
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+"""
+body = """
+{% if version %}
+## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}
+## [Unreleased]
+{% endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {{ commit.message | upper_first }}{% if commit.breaking %} **[BREAKING]**{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+"""
+trim = true
+
+[tool.git-cliff.git]
+conventional_commits    = true
+filter_unconventional   = true
+protect_breaking_commits = true
+filter_commits          = false
+tag_pattern             = "v[0-9].*"
+commit_parsers = [
+    { message = "^feat",          group = "Features"      },
+    { message = "^fix",           group = "Bug Fixes"     },
+    { message = "^docs?",         group = "Documentation" },
+    { message = "^perf",          group = "Performance"   },
+    { message = "^refactor",      group = "Refactoring"   },
+    { message = "^style",         group = "Styling"       },
+    { message = "^test",          group = "Testing"       },
+    { message = "^chore|^ci",     skip  = true            },
+]

@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "f-*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - environment: default
+            python: "3.13"
+            experimental: false
+          - environment: py312
+            python: "3.12"
+            experimental: false
+          - environment: py314
+            python: "3.14-dev"
+            experimental: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.0
+        with:
+          pixi-version: v0.70.2
+          cache: true
+          environments: ${{ matrix.environment }}
+
+      - name: Run CI
+        run: pixi run --environment ${{ matrix.environment }} ci
+        continue-on-error: ${{ matrix.experimental }}

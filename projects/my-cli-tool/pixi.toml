@@ -6,7 +6,7 @@ channels = ["conda-forge"]
 platforms = ["osx-arm64", "osx-64", "linux-64"]
 
 [dependencies]
-python = ">=3.12,<3.13"
+# Python version is pinned per environment (see [feature.py3xx] below)
 click = ">=8.1"
 rich = ">=13.7"
 
@@ -14,19 +14,37 @@ rich = ">=13.7"
 logwatch = { path = ".", editable = true }
 
 [feature.dev.dependencies]
-pytest = ">=8.2"
-pytest-cov = ">=5.0"
-ruff = ">=0.5"
-mypy = ">=1.10"
+pytest       = ">=8.2"
+pytest-cov   = ">=5.0"
+ruff         = ">=0.5"
+mypy         = ">=1.10"
+pre-commit   = ">=3.7"
+git-cliff    = ">=2.0"
+python-build = ">=1.2"
+
+[feature.py312.dependencies]
+python = ">=3.12,<3.13"
+
+[feature.py313.dependencies]
+python = ">=3.13,<3.14"
+
+[feature.py314.dependencies]
+python = ">=3.14"
 
 [environments]
-default = { features = ["dev"], solve-group = "default" }
+default = { features = ["dev", "py313"], solve-group = "py313" }
+py312   = { features = ["dev", "py312"], solve-group = "py312" }
+py314   = { features = ["dev", "py314"], solve-group = "py314" }
 
 [tasks]
-test      = { cmd = "pytest",                                               description = "Run the test suite"                  }
-cov       = { cmd = "pytest --cov=src/logwatch --cov-report=term-missing", description = "Run tests with coverage"             }
-lint      = { cmd = "ruff check .",                                         description = "Lint source code"                    }
-fmt       = { cmd = "ruff format .",                                        description = "Format source code"                  }
-check     = { cmd = "mypy src/logwatch",                                    description = "Type-check source"                   }
-watch     = { cmd = "logwatch",                                             description = "Run logwatch (append args after --)" }
-ci        = { depends-on = ["cov", "check", "lint"],                        description = "Full validation sequence"            }
+bootstrap = { cmd = "pre-commit install --install-hooks",                                          description = "Install pre-commit hooks"               }
+build     = { cmd = "python -m build --outdir dist/",                                              description = "Build the package distribution"         }
+test      = { cmd = "pytest",                                                                      description = "Run the test suite"                     }
+cov       = { cmd = "pytest --cov=src/logwatch --cov-report=term-missing --cov-fail-under=90",    description = "Run tests with coverage (≥90% required)" }
+lint      = { cmd = "ruff check .",                                                                description = "Lint source code"                       }
+fmt       = { cmd = "ruff format .",                                                               description = "Format source code"                     }
+check     = { cmd = "mypy src/logwatch",                                                           description = "Type-check source"                      }
+changelog = { cmd = "git cliff -o CHANGELOG.md",                                                   description = "Generate CHANGELOG.md"                  }
+watch     = { cmd = "logwatch",                                                                    description = "Run logwatch (append args after --)"    }
+ci        = { depends-on = ["build", "cov", "check", "lint"],                                      description = "Full validation sequence"               }
+act       = { cmd = "act --container-architecture linux/amd64",                                    description = "Run CI locally via nektos/act"          }

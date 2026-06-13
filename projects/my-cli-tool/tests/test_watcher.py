@@ -1,4 +1,8 @@
+"""Tests for the log file watcher and entry classification."""
+
 import textwrap
+import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -8,6 +12,7 @@ from logwatch.watcher import LogWatcher
 
 @pytest.fixture
 def log_file(tmp_path: Path) -> Path:
+    """Write a five-line fixture log with one entry per level."""
     content = textwrap.dedent("""\
         2024-01-01 INFO server started
         2024-01-01 WARNING disk usage at 80%
@@ -21,6 +26,8 @@ def log_file(tmp_path: Path) -> Path:
 
 
 class TestDetectLevel:
+    """Unit tests for LogWatcher.detect_level."""
+
     def test_error(self) -> None:
         assert LogWatcher.detect_level("ERROR: something failed") == "error"
         assert LogWatcher.detect_level("CRITICAL system failure") == "error"
@@ -45,6 +52,8 @@ class TestDetectLevel:
 
 
 class TestScan:
+    """Unit tests for LogWatcher.scan."""
+
     def test_all_lines(self, log_file: Path) -> None:
         entries = list(LogWatcher(log_file).scan())
         assert len(entries) == 5
@@ -87,3 +96,59 @@ class TestScan:
         entries = list(LogWatcher(log_file).scan())
         levels = {e.level for e in entries}
         assert levels == {"info", "warning", "error", "debug", "unknown"}
+
+
+class TestTail:
+    """Tests for LogWatcher.tail — real-file, threading-based."""
+
+    def test_tail_yields_existing_lines_then_new(self, tmp_path: Path) -> None:
+        """tail() first yields existing lines, then picks up appended content."""
+        log_file = tmp_path / "app.log"
+        log_file.write_text("INFO started\n")
+
+        collected: list[str] = []
+
+        def collect() -> None:
+            watcher = LogWatcher(log_file)
+            for entry in watcher.tail(last_n=1):
+                collected.append(entry.content)
+                if len(collected) >= 2:
+                    return
+
+        t = threading.Thread(target=collect, daemon=True)
+        t.start()
+
+        time.sleep(0.3)
+        with log_file.open("a") as f:
+            f.write("ERROR new failure\n")
+
+        t.join(timeout=3.0)
+        assert len(collected) == 2
+        assert "started" in collected[0]
+        assert "new failure" in collected[1]
+
+    def test_tail_respects_extra_pattern(self, tmp_path: Path) -> None:
+        """tail() filters new lines by extra pattern."""
+        log_file = tmp_path / "app.log"
+        log_file.write_text("")
+
+        collected: list[str] = []
+
+        def collect() -> None:
+            watcher = LogWatcher(log_file, patterns=["timeout"])
+            for entry in watcher.tail(last_n=0):
+                collected.append(entry.content)
+                if len(collected) >= 1:
+                    return
+
+        t = threading.Thread(target=collect, daemon=True)
+        t.start()
+
+        time.sleep(0.2)
+        with log_file.open("a") as f:
+            f.write("INFO ignored line\n")
+            f.write("ERROR timeout occurred\n")
+
+        t.join(timeout=3.0)
+        assert len(collected) == 1
+        assert "timeout" in collected[0]

@@ -1,3 +1,5 @@
+"""Command-line interface for logwatch."""
+
 import sys
 from pathlib import Path
 

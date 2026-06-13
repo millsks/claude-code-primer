@@ -1,3 +1,5 @@
+"""Rich-based output formatting for logwatch."""
+
 from rich import box
 from rich.console import Console
 from rich.table import Table
@@ -25,6 +27,14 @@ LEVEL_LABELS: dict[str, str] = {
 
 
 def format_entry(entry: LogEntry) -> Text:
+    """Format a log entry as a Rich Text object with level-appropriate styling.
+
+    Args:
+        entry: The log entry to format.
+
+    Returns:
+        A Rich Text object with a styled level label and plain content.
+    """
     style = LEVEL_STYLES.get(entry.level, "white")
     label = LEVEL_LABELS.get(entry.level, entry.level.upper()[:5])
     text = Text()
@@ -34,10 +44,21 @@ def format_entry(entry: LogEntry) -> Text:
 
 
 def print_entry(entry: LogEntry) -> None:
+    """Print a single log entry to the console.
+
+    Args:
+        entry: The log entry to print.
+    """
     console.print(format_entry(entry))
 
 
 def print_summary(stats: WatcherStats, path: str) -> None:
+    """Print a summary table of log level counts to the console.
+
+    Args:
+        stats: The collected counters from a LogWatcher session.
+        path: The log file path to display in the table title.
+    """
     table = Table(
         title=f"[bold]Log Summary: {path}[/bold]",
         box=box.ROUNDED,

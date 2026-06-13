@@ -1,3 +1,5 @@
+"""Core log file watching and entry classification logic."""
+
 import re
 import time
 from collections.abc import Iterator
@@ -14,6 +16,14 @@ LEVEL_PATTERNS: dict[str, re.Pattern[str]] = {
 
 @dataclass
 class LogEntry:
+    """A single parsed line from a log file.
+
+    Attributes:
+        line_number: Position in the source file; -1 for lines received via tail().
+        content: The raw line content with whitespace stripped.
+        level: Detected severity: error, warning, info, debug, or unknown.
+    """
+
     line_number: int  # -1 for lines appended after tail() starts
     content: str
     level: str
@@ -21,6 +31,17 @@ class LogEntry:
 
 @dataclass
 class WatcherStats:
+    """Running counters for log entries processed by a LogWatcher.
+
+    Attributes:
+        total: Total number of matched lines seen.
+        errors: Lines classified as error or critical.
+        warnings: Lines classified as warning.
+        infos: Lines classified as info.
+        debugs: Lines classified as debug.
+        unknowns: Lines that did not match any level pattern.
+    """
+
     total: int = 0
     errors: int = 0
     warnings: int = 0
@@ -30,6 +51,14 @@ class WatcherStats:
 
 
 class LogWatcher:
+    """Watches a log file and yields classified entries.
+
+    Args:
+        path: Path to the log file to watch.
+        patterns: Optional list of additional regex patterns; only lines matching
+            at least one pattern are yielded. When empty, all lines are yielded.
+    """
+
     def __init__(self, path: Path, patterns: list[str] | None = None) -> None:
         self.path = path
         self.extra_patterns: list[re.Pattern[str]] = [
@@ -39,6 +68,14 @@ class LogWatcher:
 
     @staticmethod
     def detect_level(line: str) -> str:
+        """Identify the severity level of a log line.
+
+        Args:
+            line: The raw log line content.
+
+        Returns:
+            One of ``error``, ``warning``, ``info``, ``debug``, or ``unknown``.
+        """
         for level, pattern in LEVEL_PATTERNS.items():
             if pattern.search(line):
                 return level
