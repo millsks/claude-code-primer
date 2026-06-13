@@ -23,9 +23,10 @@ mypy = ">=1.10"
 default = { features = ["dev"], solve-group = "default" }
 
 [tasks]
-test     = { cmd = "pytest",                                               description = "Run the test suite"        }
-cov      = { cmd = "pytest --cov=src/logwatch --cov-report=term-missing", description = "Run tests with coverage"   }
-lint     = { cmd = "ruff check .",                                         description = "Lint source code"          }
-fmt      = { cmd = "ruff format .",                                        description = "Format source code"        }
-check    = { cmd = "mypy src/logwatch",                                    description = "Type-check source"         }
-watch    = { cmd = "logwatch",                                             description = "Run logwatch (append args after --)" }
+test      = { cmd = "pytest",                                               description = "Run the test suite"                  }
+cov       = { cmd = "pytest --cov=src/logwatch --cov-report=term-missing", description = "Run tests with coverage"             }
+lint      = { cmd = "ruff check .",                                         description = "Lint source code"                    }
+fmt       = { cmd = "ruff format .",                                        description = "Format source code"                  }
+check     = { cmd = "mypy src/logwatch",                                    description = "Type-check source"                   }
+watch     = { cmd = "logwatch",                                             description = "Run logwatch (append args after --)" }
+ci        = { depends-on = ["cov", "check", "lint"],                        description = "Full validation sequence"            }
