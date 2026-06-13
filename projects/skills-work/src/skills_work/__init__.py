@@ -1,0 +1,1 @@
+"""Skills work demo package."""

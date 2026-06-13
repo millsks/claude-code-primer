@@ -7,6 +7,7 @@ platforms = ["osx-arm64", "osx-64", "linux-64"]
 
 [dependencies]
 git-cliff = ">=2.0"
+gh = ">=2.94.0,<3"
 
 [tasks]
 changelog = { cmd = "git-cliff --tag \"$(date +%Y-%m-%d)\" -o CHANGELOG.md", description = "Regenerate CHANGELOG.md" }

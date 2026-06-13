@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Pixi
+.pixi/
+
+# Environment
+.env
+.env.*
+
+# Tool caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Local Claude overrides — never commit
+CLAUDE.local.md
+
+# Triage reports — never commit
+triage-*.md
