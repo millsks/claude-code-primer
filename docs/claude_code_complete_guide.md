@@ -1046,6 +1046,11 @@ Control how sessions start, end, branch, and resume.
 | `/rewind` | Rewind conversation and code to a previous checkpoint | Aliases: `/checkpoint`, `/undo` |
 | `/background [prompt]` | Detach the session to run as a background agent, freeing your terminal | Alias: `/bg`; monitor with `claude agents` |
 | `/exit` | Exit the CLI | In an attached background session, detaches the session and keeps it running; alias: `/quit` |
+| `/copy [N]` | Copy the last response to clipboard | Shows a picker when code blocks are present; press `w` to write to a file instead; pass `N` to copy the Nth-to-last response |
+| `/export [filename]` | Export the conversation as plain text | Without a filename, opens a dialog to copy to clipboard or save; with a filename, writes directly |
+| `/stop` | Stop the current background session while attached to it | Keeps the transcript and worktree; use `/exit` to detach without stopping |
+| `/teleport` | Pull a Claude Code on the web session into this terminal | Fetches the branch and conversation; alias: `/tp`; requires a claude.ai subscription |
+| `/remote-control` | Make this local session accessible for control from claude.ai | Useful for switching from terminal to browser mid-task; alias: `/rc` |
 
 ---
 
@@ -1096,6 +1101,10 @@ Initialize projects, manage memory, connect external tools.
 | `/mcp [action]` | Manage MCP server connections | No argument opens an interactive list; actions: `reconnect <server>`, `enable`, `disable` |
 | `/agents` | Manage subagent configurations | Opens an interactive configuration dialog |
 | `/add-dir <path>` | Add a working directory for file access during the session | Useful when your project spans multiple directories |
+| `/fewer-permission-prompts` | Scan transcripts for repeated read-only tool calls and add an allowlist to `.claude/settings.json` | **[Skill]** — run after a few sessions to reduce approval prompt friction on safe operations |
+| `/install-github-app` | Set up the Claude GitHub Actions app for a repository | Walks through repo selection and integration configuration |
+| `/install-slack-app` | Install the Claude Slack app | Opens a browser for the OAuth flow |
+| `/team-onboarding` | Generate a team onboarding guide from your Claude Code usage history | Analyzes sessions from the past 30 days; produces a markdown guide a teammate can paste as their first message |
 
 ---
 
@@ -1111,6 +1120,8 @@ Review code, catch bugs, verify changes actually work.
 | `/security-review` | Analyze pending changes for security vulnerabilities | Reviews the git diff; identifies injection, auth bypass, and data exposure risks |
 | `/verify` | Confirm a code change works by building and running the app | Prefers observing real behavior over running tests; tests that pass are not the same as features that work |
 | `/run` | Launch and drive the project's app to see a change working | Infers how to launch from project type; useful after UI or behavioral changes |
+| `/run-skill-generator` | Teach `/run` and `/verify` how to build and launch this specific project | **[Skill]** — writes a per-project skill with build and launch instructions; run once per project before using `/run` or `/verify`; requires v2.1.145+ |
+| `/autofix-pr [prompt]` | Spawn a cloud session that watches the current branch's PR and pushes fixes when CI fails or reviewers comment | **[Workflow]** — pass a prompt to scope what it fixes, e.g. `/autofix-pr only fix lint errors`; requires the `gh` CLI |
 
 ---
 
@@ -1125,6 +1136,11 @@ Tools for planning, debugging, and inspecting the current state.
 | `/debug [description]` | Enable debug logging and troubleshoot issues | Off by default unless Claude was started with `claude --debug` |
 | `/doctor` | Diagnose and verify the installation and settings | Shows status indicators; press `f` to fix reported issues |
 | `/hooks` | View configured hook definitions | See which hooks are active for tool events; see §9 for the full hook system |
+| `/claude-api [migrate\|managed-agents-onboard]` | Load Claude API reference for your project's language | **[Skill]** — `migrate` upgrades existing model IDs and configs to newer versions; `managed-agents-onboard` walks through creating a Managed Agent |
+| `/deep-research <question>` | Fan out web searches, fetch and cross-check sources, and synthesize a cited report | **[Workflow]** — for research tasks that require multiple authoritative sources |
+| `/insights` | Generate a report analyzing your Claude Code sessions | Shows project areas worked on, interaction patterns, and friction points |
+| `/reload-skills` | Re-scan skill directories so newly added or edited skills are available immediately | No restart needed; reports skills added or removed; added in v2.1.152 |
+| `/ultraplan <prompt>` | Draft a plan in an ultraplan session, review it in the browser, then execute remotely or return it to the terminal | Use for large multi-step changes where reviewing the full plan before committing is valuable |
 
 ---
 
@@ -1154,6 +1170,9 @@ Customize the Claude Code interface.
 | `/keybindings` | Open the keyboard shortcuts file | Customize key bindings for the session |
 | `/statusline` | Configure the status line shown in your shell prompt | Describe what you want or let Claude auto-configure it |
 | `/color [color]` | Set the prompt bar color for the current session | Colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`; no argument picks a random color |
+| `/voice [hold\|tap\|off]` | Toggle voice dictation | `hold` requires holding a key while speaking; `tap` uses tap-to-toggle; requires a Claude.ai account |
+| `/focus` | Toggle a minimal view showing only your prompt, a one-line tool summary, and the response | Reduces visual noise during focused work; fullscreen rendering only; persists across sessions |
+| `/tui [default\|fullscreen]` | Switch the terminal UI renderer | `fullscreen` uses the alt-screen flicker-free renderer; relaunches with the conversation intact |
 
 ---
 
@@ -1170,6 +1189,9 @@ Information, feedback, and account management.
 | `/release-notes` | View the changelog in an interactive picker | Select a version to see its release notes |
 | `/doctor` | Diagnose the installation | See the Development Workflow section above |
 | `/login` / `/logout` | Sign in or out of your Anthropic account | |
+| `/usage-credits` | Configure usage credits to keep working when you hit a plan limit | Formerly `/extra-usage` |
+| `/skills` | List all available skills | Press `t` to sort by token count; `Space` to hide a skill from Claude or the `/` menu |
+| `/plugin [subcommand]` | Manage Claude Code plugins | Subcommands: `list`, `install`, `enable`, `disable`; no argument opens the plugin menu |
 
 ---
 
@@ -1395,24 +1417,108 @@ During `/compact`, Claude re-attaches recently invoked skills within a shared 25
 
 ---
 
-### Quick Reference
+### Complete Command Index
 
-| What you want | Command |
-|---|---|
-| Start fresh | `/clear` |
-| Free up context without losing history | `/compact` |
-| Resume a previous session | `/resume` |
-| Switch to a faster/smarter model | `/model` |
-| Turn up reasoning depth | `/effort high` |
-| Initialize a new project | `/init` |
-| Review current changes for bugs | `/code-review` |
-| Review for cleanup only | `/simplify` |
-| Confirm a feature actually works | `/verify` |
-| Plan before acting | `/plan` |
-| Run a long task without blocking the terminal | `/background` |
-| Run a task across the whole codebase | `/batch` |
-| Diagnose a broken install | `/doctor` |
-| See what the session is costing | `/usage` |
+Every command available in Claude Code, listed alphabetically. Commands marked **[Skill]** are prompts handed to Claude; **[Workflow]** commands fan work across multiple subagents in the background. Availability depends on your platform, plan, and Claude Code version.
+
+| Command | Purpose | Notes |
+|---|---|---|
+| `/add-dir <path>` | Add a working directory for file access during the session | Does not relocate the session; use `/cd` to move |
+| `/advisor [model\|off]` | Enable a second model that consults Claude at key moments | Accepts `opus`, `sonnet`, `fable`, or a full model ID; requires v2.1.98+ |
+| `/agents` | Manage subagent configurations | Opens an interactive dialog |
+| `/autofix-pr [prompt]` | Watch the current branch's PR and push fixes when CI fails or reviewers comment | **[Workflow]**; requires `gh` CLI; pass a prompt to scope what it fixes |
+| `/background [prompt]` | Detach the session to run as a background agent, freeing this terminal | Alias: `/bg`; monitor with `claude agents` |
+| `/batch <instruction>` | Orchestrate large-scale changes across the codebase in parallel | **[Skill]**; decomposes into 5–30 units, one subagent per git worktree, one PR per unit |
+| `/branch [name]` | Fork the current conversation, preserving the original for later `/resume` | Use `/fork` to delegate the branch to a subagent instead |
+| `/btw <question>` | Ask a side question without adding it to conversation history | |
+| `/cd <path>` | Move the session to a new working directory | Appends the new directory's `CLAUDE.md`; prompts for trust if the directory is new; requires v2.1.169+ |
+| `/chrome` | Configure Claude in Chrome settings | Platform-specific |
+| `/claude-api [migrate\|managed-agents-onboard]` | Load Claude API reference for your language | **[Skill]**; `migrate` upgrades model IDs and configs; `managed-agents-onboard` walks through creating a Managed Agent |
+| `/clear [name]` | Start a new conversation with empty context | Previous session stays accessible via `/resume`; aliases: `/reset`, `/new` |
+| `/code-review [level] [--fix] [--comment] [target]` | Review the current diff for correctness bugs and cleanups | **[Skill]**; levels: `low`–`ultra`; `--fix` applies findings; `--comment` posts findings as inline GitHub PR comments |
+| `/color [color\|default]` | Set the prompt bar color for the current session | Colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`; no argument picks a random color |
+| `/compact [instructions]` | Summarize conversation history to free context | Pass focus instructions to shape the summary |
+| `/config` | Open the Settings interface | Alias: `/settings` |
+| `/context [all]` | Visualize context usage as a colored grid | Shows optimization suggestions; pass `all` for the full per-item breakdown |
+| `/copy [N]` | Copy the last response to clipboard | Pass `N` to copy the Nth-to-last response; shows a picker when code blocks are present; press `w` to write to a file |
+| `/debug [description]` | Enable debug logging and troubleshoot session issues | **[Skill]**; logging is off by default unless started with `claude --debug` |
+| `/deep-research <question>` | Fan out web searches, fetch and cross-check sources, and synthesize a cited report | **[Workflow]** |
+| `/desktop` | Continue the session in the Claude Code Desktop app | macOS and Windows only; requires a Claude subscription; alias: `/app` |
+| `/diff` | Open an interactive diff viewer for uncommitted changes | Left/right arrows switch between the git diff and individual Claude turns |
+| `/doctor` | Diagnose and verify the Claude Code installation and settings | Press `f` to have Claude fix reported issues |
+| `/effort [level\|auto]` | Set the model's reasoning depth | Levels: `low`, `medium`, `high`, `xhigh`, `max`, `ultracode`; no argument opens an interactive slider |
+| `/exit` | Exit the CLI | In an attached background session, detaches without stopping; alias: `/quit` |
+| `/export [filename]` | Export the conversation as plain text | Without a filename, opens a dialog; with a filename, writes directly |
+| `/fast [on\|off]` | Toggle fast mode | Uses Claude Opus with faster output; does not downgrade to a smaller model |
+| `/feedback [report]` | Submit feedback or report a bug | Aliases: `/bug`, `/share` |
+| `/fewer-permission-prompts` | Scan transcripts for repeated read-only tool calls and add an allowlist to `.claude/settings.json` | **[Skill]**; run after a few sessions to reduce approval prompt friction |
+| `/focus` | Toggle a minimal view showing only your prompt, a one-line tool summary, and the response | Fullscreen rendering only; persists across sessions |
+| `/fork <directive>` | Spawn a background subagent that inherits the full conversation and works on the directive | Use `/branch` to switch into the fork yourself instead |
+| `/goal [condition\|clear]` | Set a goal — Claude keeps working until the condition is met | Pass `clear`, `stop`, or `off` to cancel |
+| `/heapdump` | Write a heap snapshot and memory breakdown to disk for diagnosing high memory usage | Output goes to `~/Desktop` or home directory on Linux |
+| `/help` | Show help and all available commands | |
+| `/hooks` | View configured hook definitions for tool events | |
+| `/ide` | Manage IDE integrations and show connection status | |
+| `/init` | Generate a starter `CLAUDE.md` for the current project | Set `CLAUDE_CODE_NEW_INIT=1` for an interactive flow covering skills, hooks, and memory |
+| `/insights` | Generate a report analyzing your Claude Code sessions | Shows project areas, interaction patterns, and friction points |
+| `/install-github-app` | Set up the Claude GitHub Actions app for a repository | Walks through repo selection and integration configuration |
+| `/install-slack-app` | Install the Claude Slack app | Opens a browser for the OAuth flow |
+| `/keybindings` | Open the keyboard shortcuts file | |
+| `/login` | Sign in to your Anthropic account | |
+| `/logout` | Sign out from your Anthropic account | |
+| `/loop [interval] [prompt]` | Run a prompt repeatedly on a schedule | **[Skill]**; omit interval to self-pace; omit prompt to use `.claude/loop.md`; alias: `/proactive` |
+| `/mcp [action]` | Manage MCP server connections | Actions: `reconnect <server>`, `enable`, `disable`; no argument opens the interactive list |
+| `/memory` | Edit `CLAUDE.md` files, manage auto-memory | Covers project and personal memory scopes |
+| `/mobile` | Show a QR code to download the Claude mobile app | Aliases: `/ios`, `/android` |
+| `/model [model]` | Switch the AI model | No argument opens a picker; press `s` to switch for the current session only |
+| `/passes` | Share a free week of Claude Code with friends | Only visible on eligible accounts |
+| `/permissions` | Manage allow, ask, and deny rules for tool permissions | Alias: `/allowed-tools` |
+| `/plan [description]` | Enter plan mode | Pass a description to start immediately, e.g. `/plan fix the auth bug` |
+| `/plugin [subcommand]` | Manage Claude Code plugins | Subcommands: `list`, `install`, `enable`, `disable`; no argument opens the menu |
+| `/powerup` | Discover Claude Code features through quick interactive lessons | Onboarding; includes animated demos |
+| `/pr-comments` | Fetch and display GitHub PR comments | **Removed in v2.1.91** — ask Claude directly to view PR comments instead |
+| `/privacy-settings` | View and update privacy settings | Pro and Max plan subscribers only |
+| `/radio` | Open Claude FM lo-fi radio in the browser | Not available on Bedrock, Vertex, or Foundry |
+| `/recap` | Generate a one-line summary of the current session | |
+| `/release-notes` | View the changelog in an interactive version picker | |
+| `/reload-plugins [--force]` | Reload active plugins to apply changes without restarting | Pass `--force` when MCP tool changes would otherwise invalidate the prompt cache |
+| `/reload-skills` | Re-scan skill directories so newly added or edited skills are available immediately | Added in v2.1.152 |
+| `/remote-control` | Make this local session accessible for control from claude.ai | Alias: `/rc` |
+| `/remote-env` | Choose the default environment for cloud agents | |
+| `/rename [name]` | Rename the current session | No argument auto-generates a name from conversation history |
+| `/resume [session]` | Resume a previous conversation | Background sessions appear marked `bg`; alias: `/continue` |
+| `/review [PR]` | Review a pull request in the current session | For cloud-based review, use `/code-review ultra` |
+| `/rewind` | Rewind the conversation and code to a previous checkpoint | Aliases: `/checkpoint`, `/undo` |
+| `/run` | Launch and drive the app to see a change working in the running application | **[Skill]**; requires v2.1.145+ |
+| `/run-skill-generator` | Teach `/run` and `/verify` how to build and launch this specific project | **[Skill]**; run once per project before using `/run` or `/verify`; requires v2.1.145+ |
+| `/sandbox` | Toggle sandbox mode | Platform-specific |
+| `/schedule [description]` | Create, update, list, or run scheduled cloud agents (routines) | Interactive conversational setup; alias: `/routines` |
+| `/scroll-speed` | Adjust mouse wheel scroll speed interactively | Fullscreen rendering only; not available in the JetBrains IDE terminal |
+| `/security-review` | Analyze pending changes on the current branch for security vulnerabilities | Reviews the git diff for injection, auth bypass, and data exposure risks |
+| `/setup-bedrock` | Configure Amazon Bedrock authentication, region, and model pins | Only visible when `CLAUDE_CODE_USE_BEDROCK=1` is set |
+| `/setup-vertex` | Configure Google Vertex AI authentication, project, and region | Only visible when `CLAUDE_CODE_USE_VERTEX=1` is set |
+| `/simplify [target]` | Review changed code for cleanup opportunities and apply fixes | **[Skill]**; four parallel agents covering reuse, simplification, efficiency, and abstraction; from v2.1.154, does not hunt for correctness bugs |
+| `/skills` | List all available skills | Press `t` to sort by token count; `Space` to hide a skill from Claude or the `/` menu |
+| `/status` | Open the Status tab in Settings | Shows version, model, account, and connectivity; works while Claude is responding |
+| `/statusline` | Configure the status line shown in your shell prompt | Describe what you want or let Claude auto-configure |
+| `/stickers` | Order Claude Code stickers | |
+| `/stop` | Stop the current background session while attached to it | Keeps the transcript and worktree; use `/exit` to detach without stopping |
+| `/tasks` | View and manage everything running in the background | Alias: `/bashes` |
+| `/team-onboarding` | Generate a team onboarding guide from your Claude Code usage history | Analyzes the past 30 days; produces a shareable markdown guide |
+| `/teleport` | Pull a Claude Code on the web session into this terminal | Fetches the branch and conversation; alias: `/tp`; requires a claude.ai subscription |
+| `/terminal-setup` | Configure terminal keybindings for Shift+Enter and other shortcuts | Only visible in terminals that need it: VS Code, Cursor, Alacritty, Zed |
+| `/theme` | Change the color theme | Includes auto, light/dark, colorblind-accessible, ANSI, and custom themes from `~/.claude/themes/` |
+| `/tui [default\|fullscreen]` | Switch the terminal UI renderer | `fullscreen` uses the alt-screen flicker-free renderer; relaunches with the conversation intact |
+| `/ultraplan <prompt>` | Draft a plan in an ultraplan session, review it in the browser, then execute remotely or return to the terminal | For large multi-step changes where reviewing the full plan before committing is valuable |
+| `/ultrareview [PR]` | Run a deep multi-agent code review in a cloud sandbox | Alias for `/code-review ultra`; 3 free runs on Pro/Max, then requires usage credits |
+| `/upgrade` | Open the upgrade page to switch to a higher plan tier | Only visible on Pro and Max plans |
+| `/usage` | Show session cost, token usage, and stats | Pro/Max: breakdown by skill, subagent, plugin, and MCP server; aliases: `/cost`, `/stats` |
+| `/usage-credits` | Configure usage credits to keep working when you hit a plan limit | Formerly `/extra-usage` |
+| `/verify` | Confirm a code change works by building and running the app | **[Skill]**; observes real behavior rather than relying on tests; requires v2.1.145+ |
+| `/vim` | Toggle Vim editing mode | **Removed in v2.1.92** — use `/config` → Editor mode instead |
+| `/voice [hold\|tap\|off]` | Toggle voice dictation | `hold` requires holding a key while speaking; `tap` uses tap-to-toggle; requires a Claude.ai account |
+| `/web-setup` | Connect your GitHub account to Claude Code on the web using local `gh` credentials | `/schedule` prompts for this automatically if GitHub is not connected |
+| `/workflows` | Open the workflow progress view | Watch, pause, resume, or save running and completed workflows |
 
 [↑ Top of section](#7-slash-commands--the-complete-reference) | [↑ Table of Contents](#table-of-contents)
 
