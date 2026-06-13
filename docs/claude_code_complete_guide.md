@@ -2442,7 +2442,7 @@ if __name__ == "__main__":
 
 > **Understanding the Memory Model**: This section goes deep into how Claude Code actually remembers things across sessions, how to structure memory for real projects, and advanced techniques for maintaining context continuity.
 
-### 12.1. How Claude Code Memory Actually Works
+### How Claude Code Memory Actually Works
 
 Claude Code is **stateless by default**. Every time you start a new session, the model has zero memory of what happened before. What *feels* like memory is actually a carefully orchestrated system of **files loaded into the context window at session start**.
 
@@ -2478,7 +2478,7 @@ graph TD
 | `~/.claude/rules/*.md` | When matching files are touched | You | N/A (global) |
 | Auto Memory (`~/.claude/projects/...`) | Session start | Claude | N/A (local) |
 
-### 12.2. The Memory Hierarchy
+### The Memory Hierarchy
 
 Claude Code reads memory files in a specific priority order. Higher-priority sources take precedence when instructions conflict.
 
@@ -2507,7 +2507,7 @@ Claude Code reads memory files in a specific priority order. Higher-priority sou
 
 Both are just text files injected into the context window. Neither is magic.
 
-### 12.3. CLAUDE.local.md — Your Personal Layer
+### CLAUDE.local.md — Your Personal Layer
 
 This file is for preferences that shouldn't be committed to git:
 
@@ -2523,7 +2523,7 @@ This file is for preferences that shouldn't be committed to git:
 
 **Always add `CLAUDE.local.md` to `.gitignore`.**
 
-### 12.4. Auto Memory — What Claude Remembers On Its Own
+### Auto Memory — What Claude Remembers On Its Own
 
 Auto Memory is Claude Code's built-in learning system. When you correct Claude or it discovers something about your project, it can persist that knowledge for future sessions.
 
@@ -2594,7 +2594,7 @@ See [architecture-notes.md](architecture-notes.md) for the full ADR list.
 | Coding standards | Session-specific discoveries |
 | Things you'd tell a new team member | Things you'd write in a personal notebook |
 
-### 12.5. Advanced Session Management
+### Advanced Session Management
 
 Since Claude Code is stateless, how you manage sessions directly impacts productivity.
 
@@ -2679,7 +2679,7 @@ Start with task 3 from the remaining work.
 
 This simple pattern gives you effective session-to-session continuity without any plugins.
 
-### 12.6. Context Window Optimization
+### Context Window Optimization
 
 Claude Code has a ~200K token context window. Every token matters.
 
@@ -2785,7 +2785,7 @@ Session 4: Build the frontend
 
 Each session starts clean, with full context available for focused work.
 
-### 12.7. Monorepo and Multi-Project Memory
+### Monorepo and Multi-Project Memory
 
 Monorepos need special memory strategies to prevent cross-contamination and context bloat.
 
@@ -2882,7 +2882,7 @@ In `.claude/settings.local.json`:
 }
 ```
 
-### 12.8. Advanced: Persistent Memory with Hooks
+### Advanced: Persistent Memory with Hooks
 
 Claude Code hooks let you run shell commands at specific lifecycle events. You can use them to build custom memory persistence.
 
@@ -2947,7 +2947,7 @@ if [ -d "$SESSIONS_DIR" ]; then
 fi
 ```
 
-### 12.9. Memory Patterns and Anti-Patterns
+### Memory Patterns and Anti-Patterns
 
 #### ✅ Patterns That Work
 
@@ -3085,7 +3085,7 @@ Don't put the same information in `CLAUDE.md`, auto memory, AND `.claude/rules/`
 - **Domain-specific rules** → `.claude/rules/` (path-scoped)
 - **Learned patterns** → Auto memory (Claude manages)
 
-### 12.10. Memory Quick Reference
+### Memory Quick Reference
 
 #### Commands Cheat Sheet
 
