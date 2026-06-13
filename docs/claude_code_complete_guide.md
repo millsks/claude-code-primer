@@ -791,7 +791,7 @@ None of this is actionable or project-specific. Claude already knows all of it.
 
 For sections that are long or change independently, you can pull in external files with `@path/to/file`:
 
-``markdown
+````markdown
 # CLAUDE.md
 
 ## Architecture
@@ -805,7 +805,7 @@ For sections that are long or change independently, you can pull in external fil
 pytest -x
 ruff check .
 ```
-``
+````
 
 Claude reads the referenced files at session start, exactly as if their content were inline. This is useful for:
 - Keeping `CLAUDE.md` short while linking to living documentation
