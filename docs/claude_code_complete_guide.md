@@ -17,30 +17,31 @@
 - [Part II — Intermediate: Configuration & Customization](#part-ii--intermediate-configuration--customization)
   - [5. CLAUDE.md — Teaching Claude Your Project](#5-claudemd--teaching-claude-your-project)
   - [6. Context Management & Session Strategy](#6-context-management--session-strategy)
-  - [7. The Skills System: Reusable Workflows](#7-the-skills-system-reusable-workflows)
-  - [8. The Hook System: Deterministic Automation](#8-the-hook-system-deterministic-automation)
+  - [7. Slash Commands — The Complete Reference](#7-slash-commands--the-complete-reference)
+  - [8. The Skills System: Reusable Workflows](#8-the-skills-system-reusable-workflows)
+  - [9. The Hook System: Deterministic Automation](#9-the-hook-system-deterministic-automation)
   - [Mini-Project 2: Build a Custom Development Environment](#mini-project-2-build-a-custom-development-environment)
   - [Quiz 2: Intermediate Concepts](#quiz-2-intermediate-concepts)
 - [Part III — Advanced: Integration & Programmatic Control](#part-iii--advanced-integration--programmatic-control)
-  - [9. MCP: Connecting Claude to External Systems](#9-mcp-connecting-claude-to-external-systems)
-  - [10. The Python Agent SDK](#10-the-python-agent-sdk)
-  - [11. Multi-Turn Workflows & CI/CD Automation](#11-multi-turn-workflows--cicd-automation)
-  - [12. Memory Deep Dive: Persistence, Context & Session Management](#12-memory-deep-dive-persistence-context--session-management)
+  - [10. MCP: Connecting Claude to External Systems](#10-mcp-connecting-claude-to-external-systems)
+  - [11. The Python Agent SDK](#11-the-python-agent-sdk)
+  - [12. Multi-Turn Workflows & CI/CD Automation](#12-multi-turn-workflows--cicd-automation)
+  - [13. Memory Deep Dive: Persistence, Context & Session Management](#13-memory-deep-dive-persistence-context--session-management)
   - [Mini-Project 3: Build an Automated Code Review Pipeline](#mini-project-3-build-an-automated-code-review-pipeline)
   - [Quiz 3: Advanced Integration](#quiz-3-advanced-integration)
 - [Part IV — Expert: Multi-Agent Orchestration](#part-iv--expert-multi-agent-orchestration)
-  - [13. Subagents: Delegation & Isolation](#13-subagents-delegation--isolation)
-  - [14. Background Agents & Parallel Execution](#14-background-agents--parallel-execution)
-  - [15. Agent Teams: Collaborative Multi-Agent Systems](#15-agent-teams-collaborative-multi-agent-systems)
+  - [14. Subagents: Delegation & Isolation](#14-subagents-delegation--isolation)
+  - [15. Background Agents & Parallel Execution](#15-background-agents--parallel-execution)
+  - [16. Agent Teams: Collaborative Multi-Agent Systems](#16-agent-teams-collaborative-multi-agent-systems)
   - [Mini-Project 4: Parallel Security Audit System](#mini-project-4-parallel-security-audit-system)
   - [Quiz 4: Expert Multi-Agent Concepts](#quiz-4-expert-multi-agent-concepts)
 - [Part V — Capstone Project: Multi-Agent Development System](#part-v--capstone-project-multi-agent-development-system)
-  - [16. System Architecture & Design](#16-system-architecture--design)
-  - [17. Building the Memory System](#17-building-the-memory-system)
-  - [18. Creating Agent Personalities](#18-creating-agent-personalities)
-  - [19. The Orchestration Engine](#19-the-orchestration-engine)
-  - [20. Putting It All Together: Full Implementation](#20-putting-it-all-together-full-implementation)
-  - [21. Running the System: Example Scenario](#21-running-the-system-example-scenario)
+  - [17. System Architecture & Design](#17-system-architecture--design)
+  - [18. Building the Memory System](#18-building-the-memory-system)
+  - [19. Creating Agent Personalities](#19-creating-agent-personalities)
+  - [20. The Orchestration Engine](#20-the-orchestration-engine)
+  - [21. Putting It All Together: Full Implementation](#21-putting-it-all-together-full-implementation)
+  - [22. Running the System: Example Scenario](#22-running-the-system-example-scenario)
 - [Appendix A: Claude Design — The Visual Frontier](#appendix-a-claude-design--the-visual-frontier)
 - [Appendix B: Quick Reference Card](#appendix-b-quick-reference-card)
 - [Appendix C: Quiz Answer Key](#appendix-c-quiz-answer-key)
@@ -51,6 +52,8 @@
 # Part I — Beginner: Foundations
 
 ## 1. Introduction: What Is Claude Code and Why Should You Care?
+
+[↑ Table of Contents](#table-of-contents)
 
 ### The Paradigm Shift
 
@@ -137,9 +140,13 @@ graph TB
 | Extensibility | Plugins | MCP, hooks, skills, custom agents |
 | Execution | In-editor | Terminal, IDE, desktop, CI/CD |
 
+[↑ Top of section](#1-introduction-what-is-claude-code-and-why-should-you-care) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## 2. Installation & Environment Setup
+
+[↑ Table of Contents](#table-of-contents)
 
 ### System Requirements
 
@@ -270,9 +277,13 @@ sequenceDiagram
     CC->>Dev: "All tests pass. Changes committed."
 ```
 
+[↑ Top of section](#2-installation--environment-setup) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## 3. Your First Session: Core Commands & Interaction Model
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Starting Sessions
 
@@ -321,6 +332,8 @@ Once inside an interactive session, these slash commands control the session:
 | `/clear` | Hard reset — wipe all conversation history | Switching to unrelated task |
 | `/bg` | Move current session to background | When you need your terminal back |
 
+> This table covers the commands you need to get started. For the complete reference — every built-in command by category, how to create custom commands, argument passing, shell execution, and subagent skills — see [7. Slash Commands — The Complete Reference](#7-slash-commands--the-complete-reference) in Part II.
+
 ### Interactive Keyboard Shortcuts
 
 | Shortcut | Action |
@@ -355,9 +368,13 @@ claude --effort high "design a caching strategy for this app" # Deep reasoning
 claude --effort max "find the race condition in this system"  # Maximum reasoning budget
 ```
 
+[↑ Top of section](#3-your-first-session-core-commands--interaction-model) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## 4. Understanding the Permission System
+
+[↑ Table of Contents](#table-of-contents)
 
 Claude Code's permission system is one of its most important features. It determines what Claude can do without asking and what requires your approval.
 
@@ -451,9 +468,13 @@ Settings are resolved in this precedence order (highest to lowest):
 4. **Project** — `.claude/settings.json` (committed, shared with team)
 5. **User** — `~/.claude/settings.json` (personal defaults across all projects)
 
+[↑ Top of section](#4-understanding-the-permission-system) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Mini-Project 1: Scaffold a Python CLI Tool
+
+[↑ Table of Contents](#table-of-contents)
 
 **Goal:** Use Claude Code to scaffold a complete Python CLI tool from scratch.
 
@@ -495,9 +516,13 @@ Settings are resolved in this precedence order (highest to lowest):
 
 **What you practiced:** Starting sessions, using `/init`, giving structured prompts, reviewing and approving changes, running tests through Claude.
 
+[↑ Top of section](#mini-project-1-scaffold-a-python-cli-tool) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Quiz 1: Beginner Fundamentals
+
+[↑ Table of Contents](#table-of-contents)
 
 **1.** What is the primary difference between Claude Code and code completion tools like GitHub Copilot?
 
@@ -550,11 +575,15 @@ D) `claude -r`
 
 *(Answers in [Appendix C](#appendix-c-quiz-answer-key))*
 
+[↑ Top of section](#quiz-1-beginner-fundamentals) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 # Part II — Intermediate: Configuration & Customization
 
 ## 5. CLAUDE.md — Teaching Claude Your Project
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Why CLAUDE.md Matters
 
@@ -900,13 +929,17 @@ If the answer is vague or wrong, your `CLAUDE.md` needs work.
 
 ### The CLAUDE.md / Hooks Distinction
 
-> **Key insight:** `CLAUDE.md` is for conventions and context — things Claude should *know*. For things Claude should *never do*, use hooks (covered in Section 8). Prompt instructions are probabilistic; hooks are deterministic.
+> **Key insight:** `CLAUDE.md` is for conventions and context — things Claude should *know*. For things Claude should *never do*, use hooks (covered in Section 9). Prompt instructions are probabilistic; hooks are deterministic.
 
 If you find yourself writing "NEVER do X" in `CLAUDE.md`, ask whether a hook would be more appropriate. A hook that blocks a shell command is guaranteed. A `CLAUDE.md` instruction that says not to run that command is a strong suggestion that Claude will follow almost always — but not always.
+
+[↑ Top of section](#5-claudemd--teaching-claude-your-project) | [↑ Table of Contents](#table-of-contents)
 
 ---
 
 ## 6. Context Management & Session Strategy
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Understanding the Context Window
 
@@ -969,9 +1002,425 @@ Use a subagent so the file contents don't fill my context.
 2. Starting a new session
 3. Delegating file-heavy work to subagents
 
+[↑ Top of section](#6-context-management--session-strategy) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 7. The Skills System: Reusable Workflows
+## 7. Slash Commands — The Complete Reference
+
+[↑ Table of Contents](#table-of-contents)
+
+> **Source:** [Claude Code Commands](https://code.claude.com/docs/en/commands.md) and [Skills Guide](https://code.claude.com/docs/en/skills.md) — official Claude Code documentation.
+
+Slash commands are the primary way you control a Claude Code session. They are typed at the start of a message — `/command-name` — and give you immediate access to session management, model configuration, code review tools, parallel work, and more. Type `/` alone to see all available commands, or `/` followed by letters to filter the list.
+
+This section covers every category of built-in command and then explains how to create your own custom commands using the Skills system.
+
+---
+
+### How Slash Commands Work
+
+- Type `/` at the start of a message to open the command picker
+- Any text after the command name is passed as **arguments** to that command
+- Commands are only recognized at the **start** of a message — `/compact` mid-sentence is treated as plain text
+- Some commands open interactive dialogs; others execute immediately
+- Custom commands you create (skills) appear in the same picker alongside built-ins
+
+---
+
+### Built-in Commands by Category
+
+#### Session Management
+
+Control how sessions start, end, branch, and resume.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/clear [name]` | Start a new conversation with empty context | Previous session stays accessible via `/resume`; pass an optional name to label it |
+| `/resume [session]` | Resume a previous conversation | No argument opens an interactive picker of recent sessions |
+| `/compact [instructions]` | Summarize conversation history to free context space | Pass optional instructions to shape what the summary focuses on; see §6 for when to use this |
+| `/branch [name]` | Fork the current conversation at this point | Creates a new branch while preserving the original for later `/resume`; useful for exploring alternative approaches |
+| `/fork <directive>` | Spawn a background subagent that inherits the full conversation | The subagent works on the directive while you continue in the main session; result returns when finished |
+| `/rename [name]` | Rename the current session | No argument auto-generates a name from conversation history |
+| `/cd <path>` | Move the session to a new working directory | Appends the new directory's `CLAUDE.md` to context; prompts for trust if the directory is new |
+| `/rewind` | Rewind conversation and code to a previous checkpoint | Aliases: `/checkpoint`, `/undo` |
+| `/background [prompt]` | Detach the session to run as a background agent, freeing your terminal | Alias: `/bg`; monitor with `claude agents` |
+| `/exit` | Exit the CLI | In an attached background session, detaches the session and keeps it running; alias: `/quit` |
+
+---
+
+#### Context & Performance
+
+Understand and manage what is taking up space in the context window.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/context [all]` | Visualize context usage as a colored grid | Shows which tools and files are consuming the most space; pass `all` for full breakdown |
+| `/btw <question>` | Ask a quick side question without adding it to the conversation history | Useful for clarifying something without bloating the conversation |
+| `/recap` | Generate a one-line summary of the current session | Useful after long sessions to orient yourself |
+
+---
+
+#### Model & Effort Control
+
+Switch models and tune how deeply Claude reasons about each task.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/model [model]` | Switch the AI model and save it as the default for new sessions | No argument opens an interactive picker; press `s` to switch for the current session only |
+| `/effort [level]` | Set the model's reasoning depth | Levels: `low`, `medium`, `high`, `xhigh`, `max`; higher levels use more tokens and time; no argument opens a slider |
+| `/fast [on\|off]` | Toggle fast mode | Uses a faster output configuration; understand the cost tradeoff before enabling |
+| `/advisor [model\|off]` | Enable a second model that acts as an advisor | Claude consults it before responding; useful for high-stakes decisions |
+
+**Effort level guide:**
+
+| Level | Best For |
+|---|---|
+| `low` | Simple renames, single-line fixes, obvious changes |
+| `medium` | Default for most tasks — feature additions, bug fixes |
+| `high` | Complex refactors, architectural decisions, subtle bugs |
+| `xhigh` | Deep reasoning — race conditions, security analysis, multi-system interactions |
+| `max` | Maximum reasoning budget; use sparingly |
+
+---
+
+#### Project Setup & Configuration
+
+Initialize projects, manage memory, connect external tools.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/init` | Generate a `CLAUDE.md` for the current project | Analyzes your project structure and produces a starter file; treat the output as a first draft |
+| `/memory` | Edit `CLAUDE.md` files, enable/disable auto-memory, view memory entries | Covers both project and personal memory scopes |
+| `/permissions` | Manage allow, ask, and deny rules for tool permissions | Opens an interactive dialog; see §4 for the full permission model |
+| `/mcp [action]` | Manage MCP server connections | No argument opens an interactive list; actions: `reconnect <server>`, `enable`, `disable` |
+| `/agents` | Manage subagent configurations | Opens an interactive configuration dialog |
+| `/add-dir <path>` | Add a working directory for file access during the session | Useful when your project spans multiple directories |
+
+---
+
+#### Code Review & Verification
+
+Review code, catch bugs, verify changes actually work.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/code-review [level] [--fix] [--comment] [target]` | Review the current diff for bugs and cleanups | Effort levels: `low` through `max`; `ultra` runs a deep multi-agent cloud review; `--fix` applies findings; `--comment` posts findings as inline GitHub PR comments |
+| `/simplify [target]` | Review changed code for cleanup opportunities — no bug hunting | Runs four parallel agents focused on reuse, simplification, efficiency, and abstraction |
+| `/review [PR]` | Review a pull request in the current session | Auto-detects the PR for the checked-out branch, or pass a PR URL or number |
+| `/security-review` | Analyze pending changes for security vulnerabilities | Reviews the git diff; identifies injection, auth bypass, and data exposure risks |
+| `/verify` | Confirm a code change works by building and running the app | Prefers observing real behavior over running tests; tests that pass are not the same as features that work |
+| `/run` | Launch and drive the project's app to see a change working | Infers how to launch from project type; useful after UI or behavioral changes |
+
+---
+
+#### Development Workflow
+
+Tools for planning, debugging, and inspecting the current state.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/plan [description]` | Enter plan mode — Claude outlines its approach before acting | Pass a description to start with a specific task immediately, e.g. `/plan fix the auth bug` |
+| `/diff` | Open an interactive diff viewer | Shows uncommitted changes; left/right arrows switch between the git diff and individual Claude turns |
+| `/debug [description]` | Enable debug logging and troubleshoot issues | Off by default unless Claude was started with `claude --debug` |
+| `/doctor` | Diagnose and verify the installation and settings | Shows status indicators; press `f` to fix reported issues |
+| `/hooks` | View configured hook definitions | See which hooks are active for tool events; see §9 for the full hook system |
+
+---
+
+#### Parallel & Background Work
+
+Run long-running or wide-scope tasks without blocking your session.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/batch <instruction>` | Orchestrate large-scale changes across the codebase in parallel | Decomposes the task into 5–30 units, spawns one subagent per unit in a git worktree, and opens a PR per unit |
+| `/loop [interval] [prompt]` | Run a prompt repeatedly on a schedule | Omit the interval to let Claude self-pace; omit the prompt to run from `.claude/loop.md`; e.g. `/loop 5m check if the deploy finished` |
+| `/goal [condition]` | Set a goal — Claude keeps working until the condition is met | Useful for autonomous sessions; pass `clear` or `stop` to cancel |
+| `/tasks` | View and manage everything running in the background | Also available as `/bashes` |
+| `/workflows` | Open the workflow progress view | Watch, pause, resume, or save running and completed workflows |
+| `/schedule [description]` | Create, update, list, or run scheduled cloud agents (routines) | Interactive setup; the agent runs on your defined schedule without an open session |
+
+---
+
+#### Settings & Appearance
+
+Customize the Claude Code interface.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/config` | Open the Settings interface | Adjust theme, model, output style, and preferences; alias: `/settings` |
+| `/theme` | Change the color theme | Options include light/dark variants, colorblind-accessible themes, and custom themes from `~/.claude/themes/` |
+| `/keybindings` | Open the keyboard shortcuts file | Customize key bindings for the session |
+| `/statusline` | Configure the status line shown in your shell prompt | Describe what you want or let Claude auto-configure it |
+| `/color [color]` | Set the prompt bar color for the current session | Colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`; no argument picks a random color |
+
+---
+
+#### Help, Usage & Account
+
+Information, feedback, and account management.
+
+| Command | What It Does | Notes |
+|---|---|---|
+| `/help` | Show help and all available commands | |
+| `/usage` | Show session cost, token usage, and stats | On Pro/Max plans: breakdown by skill, subagent, plugin, and MCP server; aliases: `/cost`, `/stats` |
+| `/status` | Open the Status tab in Settings | Shows version, model, account, and connectivity; works while Claude is responding |
+| `/feedback [report]` | Submit feedback or report a bug | Aliases: `/bug`, `/share` |
+| `/release-notes` | View the changelog in an interactive picker | Select a version to see its release notes |
+| `/doctor` | Diagnose the installation | See the Development Workflow section above |
+| `/login` / `/logout` | Sign in or out of your Anthropic account | |
+
+---
+
+### Custom Slash Commands — The Skills System
+
+Every custom slash command in Claude Code is a **skill** — a markdown file that defines instructions, arguments, and behavior. When you type `/deploy-staging`, Claude reads the `SKILL.md` file for that skill and follows its instructions.
+
+Custom commands live alongside built-ins in the same `/` picker and are invoked identically.
+
+#### Storage Locations and Scope
+
+Where you store a skill determines who can use it and in which projects:
+
+| Scope | Location | Who Can Use It |
+|---|---|---|
+| **Personal** | `~/.claude/skills/<name>/SKILL.md` | You, in all your projects |
+| **Project** | `.claude/skills/<name>/SKILL.md` | Anyone on this project |
+| **Legacy** | `.claude/commands/<name>.md` | Still works; equivalent to a project skill |
+| **Plugin** | `<plugin>/skills/<name>/SKILL.md` | Where the plugin is enabled; invoked as `/plugin-name:skill-name` |
+
+When the same skill name exists at multiple scopes, the more specific scope wins: project overrides personal.
+
+The **command name** is the directory name, not anything in the file. A skill at `.claude/skills/run-migrations/SKILL.md` is invoked as `/run-migrations`.
+
+#### Creating a Basic Custom Command
+
+Create the directory and file:
+
+```bash
+mkdir -p .claude/skills/fix-issue
+```
+
+```markdown
+# .claude/skills/fix-issue/SKILL.md
+
+---
+description: Fix a GitHub issue end-to-end — read it, implement the fix, write tests, commit.
+---
+
+Fix GitHub issue #$ARGUMENTS:
+
+1. Fetch the issue body with `gh issue view $ARGUMENTS`
+2. Understand the requirements before touching any code
+3. Implement the fix following the project coding standards
+4. Write a unit test that proves the fix works
+5. Commit with message: `fix: resolve issue #$ARGUMENTS`
+```
+
+Invoke with: `/fix-issue 247`
+
+Claude replaces `$ARGUMENTS` with `247` before reading the instructions.
+
+#### The SKILL.md Frontmatter Reference
+
+The YAML frontmatter (between `---` markers) configures the skill's behavior. All fields are optional.
+
+| Field | Type | What It Controls |
+|---|---|---|
+| `description` | String | What the skill does and when to use it. Claude uses this to decide when to auto-suggest the skill. Combined with `when_to_use`, capped at 1,536 characters. |
+| `when_to_use` | String | Additional trigger phrases and example requests. Appended to `description` in skill listings. |
+| `argument-hint` | String | Hint shown during autocomplete, e.g. `[issue-number]` or `[filename] [format]` |
+| `arguments` | List or String | Named positional arguments for `$name` substitution, e.g. `[component, from, to]` |
+| `disable-model-invocation` | Boolean | Set `true` to prevent Claude auto-loading the skill — you must invoke it manually. Use for skills with side effects (deploy, send message, commit). |
+| `user-invocable` | Boolean | Set `false` to hide from the `/` menu — Claude loads it as background context but users cannot invoke it directly. |
+| `allowed-tools` | String or List | Tools Claude can use without a permission prompt while this skill is active. |
+| `disallowed-tools` | String or List | Tools removed from Claude's available set while this skill is active. Cleared after the next message. |
+| `model` | String | Model to use when the skill is active. Applies for that turn only. |
+| `effort` | String | Effort level (`low`, `medium`, `high`, `xhigh`, `max`) when the skill is active. |
+| `context` | String | Set to `fork` to run the skill in an isolated subagent context. |
+| `agent` | String | Subagent type when `context: fork`. Built-ins: `Explore`, `Plan`, `general-purpose`; or a custom agent from `.claude/agents/`. |
+| `paths` | List or String | Glob patterns — skill only auto-activates when Claude is working in files that match. |
+
+#### Passing Arguments
+
+Three substitution patterns are available:
+
+| Pattern | Meaning | Example |
+|---|---|---|
+| `$ARGUMENTS` | All text after the command name | `/deploy staging eu-west` → `staging eu-west` |
+| `$0`, `$1`, `$2` | Specific argument by position (zero-based) | `$0` = `staging`, `$1` = `eu-west` |
+| `$name` | Named argument declared in `arguments` frontmatter | `arguments: [env, region]` → `$env`, `$region` |
+
+Wrap multi-word arguments in quotes: `/skill "hello world" second` makes `$0` = `hello world`.
+
+**Named arguments example:**
+
+```yaml
+---
+description: Deploy the app to a specific environment and region
+arguments: [env, region]
+disable-model-invocation: true
+---
+
+Deploy to $env in $region:
+1. Run `pixi run ci` and confirm it passes
+2. Tag the release: `git tag deploy-$env-$(date +%Y%m%d)`
+3. Push to the $region cluster using the deployment runbook
+```
+
+Invoke with: `/deploy staging eu-west-1`
+
+#### Dynamic Context — Shell Execution
+
+Use `` !`command` `` to run a shell command **before** the skill content reaches Claude. The output replaces the placeholder inline:
+
+```markdown
+---
+description: Review the current pull request
+---
+
+## Pull Request Context
+
+**Diff:**
+!`gh pr diff`
+
+**Open comments:**
+!`gh pr view --comments`
+
+**Changed files:**
+!`gh pr diff --name-only`
+
+Review this PR for correctness, test coverage, and adherence to coding standards.
+```
+
+Multi-line shell output uses a fenced code block with `!`:
+
+````markdown
+## Environment
+```!
+node --version
+npm --version
+git log --oneline -5
+```
+````
+
+Shell execution runs immediately when the skill loads — before Claude sees any content. The output is plain text and is not scanned for further `!` placeholders.
+
+#### Controlling Who Can Invoke a Skill
+
+Two frontmatter flags control whether Claude or the user can invoke a skill:
+
+| Configuration | You Invoke | Claude Auto-Invokes | Use Case |
+|---|---|---|---|
+| Default | Yes | Yes | General-purpose helpers |
+| `disable-model-invocation: true` | Yes | No | Side-effect commands (deploy, commit, send message) |
+| `user-invocable: false` | No | Yes | Background knowledge Claude should know but users shouldn't call directly |
+
+Always set `disable-model-invocation: true` for skills that have real-world side effects. You do not want Claude autonomously deploying to production because it decided the deploy skill was relevant.
+
+#### Running Skills in Subagents
+
+Set `context: fork` to run a skill in an isolated subagent. The skill content becomes the subagent's entire prompt — it does not have access to conversation history.
+
+```yaml
+---
+description: Deep-search the codebase for security vulnerabilities
+context: fork
+agent: Explore
+---
+
+Perform a security audit of the codebase for $ARGUMENTS:
+
+1. Search for all uses of `eval()`, `exec()`, and `subprocess` with shell=True
+2. Find database queries that concatenate user input directly
+3. Identify endpoints that skip authentication checks
+4. Report findings with file paths and line numbers
+```
+
+**Built-in subagent types:**
+
+| Agent | Characteristics |
+|---|---|
+| `Explore` | Read-only search agent; does not make changes; skips `CLAUDE.md` to keep context small |
+| `Plan` | Architecture and planning agent; focuses on strategy over implementation; skips `CLAUDE.md` |
+| `general-purpose` | Full-capability agent with all tools available |
+
+#### Pre-Approving Tools
+
+Use `allowed-tools` to pre-approve specific tool calls so Claude does not prompt for permission while the skill runs:
+
+```yaml
+---
+name: commit
+description: Stage and commit all changes with a conventional commit message
+disable-model-invocation: true
+allowed-tools: Bash(git add *) Bash(git commit *) Bash(git status *) Bash(git diff *)
+---
+
+Stage and commit all changes:
+1. Run `git status` to see what has changed
+2. Run `git diff` to review the changes
+3. Stage with `git add -A`
+4. Write a conventional commit message based on the changes
+5. Commit with `git commit -m "<message>"`
+```
+
+#### Supporting Files
+
+Keep `SKILL.md` under 500 lines by moving detailed reference material to separate files in the same directory. Claude loads supporting files only when it references them:
+
+```
+.claude/skills/api-review/
+├── SKILL.md           # Overview and navigation
+├── checklist.md       # Full review checklist
+├── examples/
+│   └── good-api.md    # Reference examples
+└── scripts/
+    └── lint-openapi.sh
+```
+
+Reference from `SKILL.md`:
+
+```markdown
+For the complete review checklist, see [checklist.md](checklist.md).
+For reference examples of well-designed APIs, see [examples/good-api.md](examples/good-api.md).
+```
+
+#### The Skill Content Lifecycle
+
+When you invoke a skill, its rendered content is injected into the conversation and stays there for the rest of the session. Claude does not re-read the skill file on subsequent turns. Write guidance as **standing instructions**, not one-time steps.
+
+During `/compact`, Claude re-attaches recently invoked skills within a shared 25,000-token budget (keeping the first 5,000 tokens of each skill). If a skill stops influencing Claude's behavior after the first response, strengthen the description and instructions, or re-invoke it after compaction.
+
+---
+
+### Quick Reference
+
+| What you want | Command |
+|---|---|
+| Start fresh | `/clear` |
+| Free up context without losing history | `/compact` |
+| Resume a previous session | `/resume` |
+| Switch to a faster/smarter model | `/model` |
+| Turn up reasoning depth | `/effort high` |
+| Initialize a new project | `/init` |
+| Review current changes for bugs | `/code-review` |
+| Review for cleanup only | `/simplify` |
+| Confirm a feature actually works | `/verify` |
+| Plan before acting | `/plan` |
+| Run a long task without blocking the terminal | `/background` |
+| Run a task across the whole codebase | `/batch` |
+| Diagnose a broken install | `/doctor` |
+| See what the session is costing | `/usage` |
+
+[↑ Top of section](#7-slash-commands--the-complete-reference) | [↑ Table of Contents](#table-of-contents)
+
+---
+
+## 8. The Skills System: Reusable Workflows
+
+[↑ Table of Contents](#table-of-contents)
 
 ### What Are Skills?
 
@@ -1049,9 +1498,13 @@ Invoke it with: `/deploy` or simply ask Claude to deploy and it will auto-discov
 
 Skills support YAML frontmatter that can define dynamic arguments, model overrides, and tool restrictions. This makes them powerful building blocks for custom workflows.
 
+[↑ Top of section](#8-the-skills-system-reusable-workflows) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 8. The Hook System: Deterministic Automation
+## 9. The Hook System: Deterministic Automation
+
+[↑ Table of Contents](#table-of-contents)
 
 ### The Problem with Prompt Instructions
 
@@ -1150,9 +1603,13 @@ Hooks are defined in your settings.json:
 >
 > The first is a suggestion. The second is a wall.
 
+[↑ Top of section](#9-the-hook-system-deterministic-automation) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Mini-Project 2: Build a Custom Development Environment
+
+[↑ Table of Contents](#table-of-contents)
 
 **Goal:** Set up a complete Claude Code environment for a FastAPI project with CLAUDE.md, skills, hooks, and scoped rules.
 
@@ -1212,9 +1669,13 @@ Hooks are defined in your settings.json:
 
 **What you practiced:** CLAUDE.md authoring, skills creation, hook configuration, scoped rules, project-level settings.
 
+[↑ Top of section](#mini-project-2-build-a-custom-development-environment) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Quiz 2: Intermediate Concepts
+
+[↑ Table of Contents](#table-of-contents)
 
 **1.** What is the primary purpose of CLAUDE.md?
 
@@ -1274,11 +1735,15 @@ D) Exactly 50%
 
 *(Answers in [Appendix C](#appendix-c-quiz-answer-key))*
 
+[↑ Top of section](#quiz-2-intermediate-concepts) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 # Part III — Advanced: Integration & Programmatic Control
 
-## 9. MCP: Connecting Claude to External Systems
+## 10. MCP: Connecting Claude to External Systems
+
+[↑ Table of Contents](#table-of-contents)
 
 ### What Is MCP?
 
@@ -1513,9 +1978,13 @@ Now Claude can query your build status, error trends, and deployment history dir
 5. **Test your MCP server** independently before connecting to Claude Code — debug a broken server inside a Claude session is frustrating
 6. **Document tool descriptions** carefully — Claude decides whether to use a tool based on its description string
 
+[↑ Top of section](#10-mcp-connecting-claude-to-external-systems) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 10. The Python Agent SDK
+## 11. The Python Agent SDK
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Why Use the SDK?
 
@@ -1707,9 +2176,13 @@ async with ClaudeSDKClient(options=options) as client:
 
 > **Critical:** Always drain the response buffer after an interrupt before sending a new query. Failing to do so will cause undefined behavior.
 
+[↑ Top of section](#11-the-python-agent-sdk) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 11. Multi-Turn Workflows & CI/CD Automation
+## 12. Multi-Turn Workflows & CI/CD Automation
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Workflow Patterns
 
@@ -1853,9 +2326,13 @@ if __name__ == "__main__":
         sys.exit(0)
 ```
 
+[↑ Top of section](#12-multi-turn-workflows--cicd-automation) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 12. Memory Deep Dive: Persistence, Context & Session Management
+## 13. Memory Deep Dive: Persistence, Context & Session Management
+
+[↑ Table of Contents](#table-of-contents)
 
 > **Understanding the Memory Model**: This section goes deep into how Claude Code actually remembers things across sessions, how to structure memory for real projects, and advanced techniques for maintaining context continuity.
 
@@ -2552,9 +3029,13 @@ Need to store something for Claude?
 | Handoff docs | < 500 tokens | Keep summaries concise |
 | **Total memory overhead** | **< 4,500 tokens** | Leaves ~195K for work |
 
+[↑ Top of section](#13-memory-deep-dive-persistence-context--session-management) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Mini-Project 3: Build an Automated Code Review Pipeline
+
+[↑ Table of Contents](#table-of-contents)
 
 **Goal:** Build a Python script that uses the Claude Agent SDK to automatically review code changes, generate a structured report, and post results.
 
@@ -2693,14 +3174,18 @@ if __name__ == "__main__":
 python code_review_pipeline.py
 
 # Integrate into CI/CD (GitHub Actions)
-# See Section 11 for full CI/CD examples
+# See Section 12 for full CI/CD examples
 ```
 
 **What you practiced:** Using the Python Agent SDK, structured output, building automation pipelines, JSON parsing from Claude responses.
 
+[↑ Top of section](#mini-project-3-build-an-automated-code-review-pipeline) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Quiz 3: Advanced Integration
+
+[↑ Table of Contents](#table-of-contents)
 
 **1.** What is MCP?
 
@@ -2760,11 +3245,15 @@ D) A database
 
 *(Answers in [Appendix C](#appendix-c-quiz-answer-key))*
 
+[↑ Top of section](#quiz-3-advanced-integration) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 # Part IV — Expert: Multi-Agent Orchestration
 
-## 13. Subagents: Delegation & Isolation
+## 14. Subagents: Delegation & Isolation
+
+[↑ Table of Contents](#table-of-contents)
 
 ### What Are Subagents?
 
@@ -2822,9 +3311,13 @@ claude --agent code-reviewer "review the changes in the last 3 commits"
 | **Token cost** | Lower | Higher (each is full instance) |
 | **Best for** | Focused, result-only tasks | Collaborative discussion + coordination |
 
+[↑ Top of section](#14-subagents-delegation--isolation) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 14. Background Agents & Parallel Execution
+## 15. Background Agents & Parallel Execution
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Background Sessions
 
@@ -2880,9 +3373,13 @@ With Dynamic Workflows enabled, Claude will:
 
 This feature is available on **Enterprise, Team, and Max plans** and is currently in research preview.
 
+[↑ Top of section](#15-background-agents--parallel-execution) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 15. Agent Teams: Collaborative Multi-Agent Systems
+## 16. Agent Teams: Collaborative Multi-Agent Systems
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Overview
 
@@ -2949,9 +3446,13 @@ Config: ~/.claude/teams/{team-name}/config.json
 - No nested teams
 - Experimental — may have coordination issues
 
+[↑ Top of section](#16-agent-teams-collaborative-multi-agent-systems) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Mini-Project 4: Parallel Security Audit System
+
+[↑ Table of Contents](#table-of-contents)
 
 **Goal:** Build a system that spawns multiple subagents to perform parallel security audits on different parts of a codebase.
 
@@ -3011,9 +3512,13 @@ if __name__ == "__main__":
 
 **What you practiced:** Subagent orchestration, parallel execution, aggregating results from multiple agents.
 
+[↑ Top of section](#mini-project-4-parallel-security-audit-system) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Quiz 4: Expert Multi-Agent Concepts
+
+[↑ Table of Contents](#table-of-contents)
 
 **1.** What is the primary advantage of using subagents?
 
@@ -3073,11 +3578,15 @@ D) 1
 
 *(Answers in [Appendix C](#appendix-c-quiz-answer-key))*
 
+[↑ Top of section](#quiz-4-expert-multi-agent-concepts) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 # Part V — Capstone Project: Multi-Agent Development System
 
-## 16. System Architecture & Design
+## 17. System Architecture & Design
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Project Overview
 
@@ -3133,9 +3642,13 @@ graph TB
 | **File-based task handoff** | Simple coordination without complex messaging |
 | **Permission isolation** | Architect/Reviewer read-only; Implementer/Tester can edit |
 
+[↑ Top of section](#17-system-architecture--design) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 17. Building the Memory System
+## 18. Building the Memory System
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Requirements
 
@@ -3257,9 +3770,13 @@ context = luna_memory.get_context_summary(limit=10)
 print(context)
 ```
 
+[↑ Top of section](#18-building-the-memory-system) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 18. Creating Agent Personalities
+## 19. Creating Agent Personalities
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Agent Definitions
 
@@ -3388,9 +3905,13 @@ When writing tests:
 }
 ```
 
+[↑ Top of section](#19-creating-agent-personalities) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 19. The Orchestration Engine
+## 20. The Orchestration Engine
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Core Orchestrator
 
@@ -3551,9 +4072,13 @@ Report test results and coverage.
         }
 ```
 
+[↑ Top of section](#20-the-orchestration-engine) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 20. Putting It All Together: Full Implementation
+## 21. Putting It All Together: Full Implementation
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Complete System
 
@@ -3571,7 +4096,7 @@ from datetime import datetime
 from pathlib import Path
 from claude_agent_sdk import query, ClaudeAgentOptions, create_sdk_mcp_server, tool
 
-# === Memory System (from Section 17) ===
+# === Memory System (from Section 18) ===
 class AgentMemory:
     """Persistent memory store for individual agents."""
     
@@ -3652,7 +4177,7 @@ class AgentMemory:
         self.conn.close()
 
 
-# === Agent Personalities (from Section 18) ===
+# === Agent Personalities (from Section 19) ===
 AGENT_PERSONALITIES = {
     "luna": {
         "name": "Luna",
@@ -3777,7 +4302,7 @@ When writing tests:
 }
 
 
-# === Orchestrator (from Section 19) ===
+# === Orchestrator (from Section 20) ===
 class DevelopmentOrchestrator:
     """Orchestrates the 4-agent development pipeline."""
     
@@ -3959,9 +4484,13 @@ pip install claude-agent-sdk
 python multi_agent_dev_system.py /path/to/project "Build a REST API for a blog with posts and comments"
 ```
 
+[↑ Top of section](#21-putting-it-all-together-full-implementation) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
-## 21. Running the System: Example Scenario
+## 22. Running the System: Example Scenario
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Scenario: Build a Task Management API
 
@@ -4151,9 +4680,13 @@ TOTAL                      93%
 
 4. **Sequential Coordination**: Each phase built on the previous without complex messaging
 
+[↑ Top of section](#22-running-the-system-example-scenario) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Appendix A: Claude Design — The Visual Frontier
+
+[↑ Table of Contents](#table-of-contents)
 
 > **Note**: Claude Design is a visual design companion that works alongside Claude Code. This appendix provides a brief overview.
 
@@ -4183,9 +4716,13 @@ claude design "Create a modern dashboard for a task management app with:
 Use a professional color scheme."
 ```
 
+[↑ Top of section](#appendix-a-claude-design--the-visual-frontier) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Appendix B: Quick Reference Card
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Essential Commands
 ```bash
@@ -4243,9 +4780,13 @@ claude --safe-mode              # Start with all customizations disabled
 4. Use subagents for file-heavy tasks
 5. Compact proactively at ~60% capacity
 
+[↑ Top of section](#appendix-b-quick-reference-card) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Appendix C: Quiz Answer Key
+
+[↑ Table of Contents](#table-of-contents)
 
 ### Quiz 1: Beginner Fundamentals
 1. **B** - Claude Code operates at the project level and executes multi-step actions autonomously
@@ -4286,9 +4827,13 @@ claude --safe-mode              # Start with all customizations disabled
 7. **B** - Isolate file changes to prevent conflicts between parallel agents
 8. **B** - 3–5 teammates
 
+[↑ Top of section](#appendix-c-quiz-answer-key) | [↑ Table of Contents](#table-of-contents)
+
 ---
 
 ## Appendix D: Pro Tips & Power Patterns
+
+[↑ Table of Contents](#table-of-contents)
 
 ### 1. The "Throwaway Exploration" Pattern
 
@@ -4488,6 +5033,8 @@ claude --model claude-sonnet-4-6 -p \
 claude --model claude-opus-4-8 --permission-mode plan \
   "analyze this codebase for architectural code smells and design pattern violations"
 ```
+
+[↑ Top of section](#appendix-d-pro-tips--power-patterns) | [↑ Table of Contents](#table-of-contents)
 
 ---
 
