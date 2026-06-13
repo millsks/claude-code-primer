@@ -564,17 +564,69 @@ Without `CLAUDE.md`, Claude has to rediscover your project conventions every ses
 
 ### How Claude Loads CLAUDE.md
 
-Claude Code builds its context from multiple `CLAUDE.md` files, loaded in order and merged:
+Claude Code builds its context from multiple instruction files, loaded in a specific order and merged into the system prompt before your first message. Understanding every location — and when each one loads — lets you put instructions exactly where they belong.
+
+#### All Instruction File Locations
+
+| File | When loaded | Committed to git? | Purpose |
+|------|-------------|-------------------|---------|
+| `~/.claude/CLAUDE.md` | Every session | No (global) | Personal preferences across all projects |
+| `~/.claude/rules/*.md` | Session start or on file match (see below) | No (global) | Personal modular rules, optionally path-scoped |
+| `./CLAUDE.md` | Every session | Yes | Team conventions at the project root |
+| `./.claude/CLAUDE.md` | Every session | Yes | Alternative project-root location (same effect) |
+| `<parent>/CLAUDE.md` | Every session | Yes | Inherited by all subdirectories; Claude walks up from the working directory to the repo root loading every `CLAUDE.md` it finds |
+| `<subdir>/CLAUDE.md` | When Claude works in that subtree | Yes | Package- or module-specific rules in a monorepo |
+| `./.claude/rules/*.md` | Session start or on file match (see below) | Yes | Project-scoped rules, optionally path-filtered |
+| `./CLAUDE.local.md` | Every session | **No** — gitignore this | Personal overrides for a specific project (not shared with the team) |
+
+#### Priority Order
+
+When instructions conflict, higher entries win:
 
 ```
-~/.claude/CLAUDE.md              ← global: applies to every project
-./CLAUDE.md                      ← project root: the main file
-./.claude/rules/*.md             ← scoped rules (path-filtered, see below)
+1. Enterprise/managed policy (IT-controlled, not editable)
+2. Project CLAUDE.md (./CLAUDE.md or ./.claude/CLAUDE.md)
+3. Project rules (./.claude/rules/)
+4. User CLAUDE.md (~/.claude/CLAUDE.md)
+5. User rules (~/.claude/rules/)
+6. Local overrides (./CLAUDE.local.md)
 ```
 
-All loaded files are injected into the system prompt before your first message. The global file is useful for personal preferences that travel with you across projects (preferred diff style, communication tone, editor keybindings you always want respected). The project file is for team-shared conventions checked into version control.
+#### Parent-Directory Traversal
 
-> **Context cost:** CLAUDE.md typically occupies ~5% of the context window. Keep it focused — padding it with obvious information wastes space that could hold actual code.
+When you open a project, Claude walks up the directory tree from the working directory to the repository root, loading every `CLAUDE.md` it finds along the way. In a monorepo this means instructions compose naturally — a `packages/api/CLAUDE.md` adds to, rather than replaces, the root `CLAUDE.md`. Instructions from deeper files take precedence over shallower ones for the same topic.
+
+#### Path-Scoped Rules in `.claude/rules/`
+
+Files in `.claude/rules/` (project) or `~/.claude/rules/` (global) can carry a `paths:` frontmatter block. Without it, the file loads at session start like any `CLAUDE.md`. With it, Claude loads the file only when it reads a file whose path matches one of the globs:
+
+```yaml
+---
+paths:
+  - "src/api/**"
+  - "**/*.route.ts"
+---
+# API layer conventions
+
+- Every route handler must validate input with zod before touching the DB.
+- Return RFC 7807 problem+json for all error responses.
+```
+
+This keeps large rule sets out of the context window until they're actually relevant — useful for monorepos where frontend and backend rules would otherwise collide.
+
+#### CLAUDE.local.md — Personal Project Overrides
+
+`CLAUDE.local.md` sits at the project root and loads every session, but you gitignore it so it never reaches your teammates. Use it for preferences that are real but personal:
+
+```markdown
+# Personal overrides — not committed
+
+- I'm working on the payments feature this sprint; focus suggestions there.
+- Prefer verbose explanations when I ask for code review.
+- My local DB is on port 5433, not the default 5432.
+```
+
+> **Context cost:** All loaded instruction files share the same context window. A well-focused set of `CLAUDE.md` files typically occupies ~5% of the window. Sprawling, duplicated, or contradictory instructions waste space that could hold actual code — keep each file tight and non-overlapping.
 
 ### Creating Your First CLAUDE.md
 
