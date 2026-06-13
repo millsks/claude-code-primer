@@ -630,6 +630,22 @@ This keeps large rule sets out of the context window until they're actually rele
 
 > **Context cost:** All loaded instruction files share the same context window. A well-focused set of `CLAUDE.md` files typically occupies ~5% of the window. Sprawling, duplicated, or contradictory instructions waste space that could hold actual code — keep each file tight and non-overlapping.
 
+#### When to Split CLAUDE.md into Rules Files
+
+The right reason to split is **path-scoping**, not size. Rules files earn their keep when a section only applies to certain file types or directories — so Claude avoids loading irrelevant instructions for unrelated work. If every section you'd extract applies globally all the time, splitting into always-loaded rules files adds filesystem complexity with zero context savings, since all files still load every session.
+
+**Split when:**
+- The file grows past ~500 lines and distinct domains are identifiable
+- You add language- or framework-specific rules that don't apply universally — e.g., TypeScript conventions scoped to `**/*.ts`, or FastAPI patterns scoped to `src/api/**`
+- You work across multiple languages and want to load only the relevant subset per session
+
+**Don't split just because:**
+- The file feels long — 300–400 lines at ~4k tokens is well within budget
+- You want "organisation" — a single well-structured file with clear headings is easier to maintain than a directory of always-loaded fragments
+- A section is rarely needed (e.g., a scaffolding reference) but has no `paths:` pattern to match — it can't be conditionally loaded, so splitting it buys nothing
+
+The right mental model: splitting `CLAUDE.md` into rules files is a context-window optimisation, not a filing system. Apply it only when you have rules that are genuinely irrelevant to some files Claude will touch.
+
 ### Creating Your First CLAUDE.md
 
 ```bash
