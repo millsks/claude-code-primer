@@ -217,18 +217,37 @@ claude setup-token
 
 Claude Code supports Anthropic's full model lineup:
 
-| Model | Strengths | Use When |
-|-------|-----------|----------|
-| **Claude Opus** | Deepest reasoning, most capable | Complex architecture, subtle bugs, nuanced refactoring |
-| **Claude Sonnet** | Balanced speed & capability (default) | Daily development work |
-| **Claude Haiku** | Fastest, lowest cost | Simple formatting, renaming, high-volume batch tasks |
+| Model | ID | Strengths | Use When |
+|-------|----|-----------|----------|
+| **Claude Opus 4.8** | `claude-opus-4-8` | Deepest reasoning, codebase-scale migrations | Complex architecture, subtle bugs, multi-file refactoring |
+| **Claude Sonnet 4.6** | `claude-sonnet-4-6` | Balanced speed & capability (default) | Daily development work |
+| **Claude Haiku 4.5** | `claude-haiku-4-5-20251001` | Fastest, lowest cost | Simple formatting, renaming, high-volume batch tasks |
+| **Claude Fable 5** | `claude-fable-5` | Creative and narrative tasks | Generating docs, READMEs, user-facing copy |
 
 Override per session:
 
 ```bash
-claude --model claude-opus "design the database schema for a social network"
-claude --model claude-haiku "rename all instances of 'usr' to 'user'"
+claude --model claude-opus-4-8 "design the database schema for a social network"
+claude --model claude-haiku-4-5-20251001 "rename all instances of 'usr' to 'user'"
 ```
+
+**Fast mode:** Opus 4.8 supports a fast output mode (`/fast` to toggle) that delivers Opus-quality reasoning at significantly higher speed — it does not downgrade to a smaller model.
+
+### Step 5 (Optional): IDE Integration
+
+Claude Code is available as a native extension for VS Code and JetBrains IDEs, in addition to the terminal.
+
+**VS Code** — Install the Claude Code extension from the VS Code Marketplace. It adds a dedicated sidebar panel with inline diffs, letting you see Claude's changes in real time without leaving your editor. The extension shares the same session state as the terminal — you can start work in the terminal and continue in VS Code.
+
+**JetBrains** — IntelliJ, PyCharm, WebStorm, and other JetBrains IDEs are supported via the Claude Code plugin. Install from the JetBrains Marketplace.
+
+**When to use the IDE vs. terminal:**
+- Use the **IDE extension** when you want to review diffs visually and integrate Claude into your existing editor workflow.
+- Use the **terminal** for scripting, CI/CD, background sessions, and when you need full CLI flag control.
+
+Both modes have full access to the same features: hooks, MCP servers, skills, and subagents.
+
+---
 
 ### The Lifecycle of a Claude Code Session
 
@@ -308,7 +327,9 @@ Once inside an interactive session, these slash commands control the session:
 |----------|--------|
 | `Tab` | Accept Claude's suggestion |
 | `Esc` | Interrupt current generation |
+| `Esc` `Esc` | Rewind to previous checkpoint |
 | `Alt+T` | Toggle extended thinking |
+| `Ctrl+R` | Search prompt history (reuse or edit previous prompts) |
 | `Shift+Down` | Navigate between Agent Team members |
 
 ### Controlling Cost & Scope
@@ -361,7 +382,7 @@ graph LR
 | `plan` | Read-only. Explores and plans, never modifies. | 🟢 Safest | Architecture review, codebase exploration |
 | `default` | Asks before every potentially dangerous action. | 🔵 Safe | Daily development (recommended) |
 | `acceptEdits` | Auto-approves file edits in working directory. | 🟡 Moderate | Trusted projects, rapid iteration |
-| `auto` | AI classifier decides what's safe. | 🟠 Reduced safety | Experienced users, reduced friction |
+| `auto` | A trained transcript classifier gates each tool call; subagents run the same pipeline recursively. Security improves as classifier coverage and model judgment improve over time. | 🟠 Reduced safety | Experienced users, CI/CD pipelines |
 | `bypassPermissions` | Skips ALL permission checks. | 🔴 Dangerous | Isolated containers/VMs only |
 
 ```bash
@@ -370,6 +391,12 @@ claude --permission-mode plan "analyze the architecture of this project"
 
 # Fast iteration on a trusted personal project
 claude --permission-mode acceptEdits "refactor the database layer"
+```
+
+**Troubleshooting mode:** The `--safe-mode` flag (or `CLAUDE_CODE_SAFE_MODE=1`) starts Claude Code with all customizations disabled — CLAUDE.md, skills, hooks, MCP servers, and plugins are all skipped. Use this to isolate whether a problem is caused by your configuration.
+
+```bash
+claude --safe-mode   # or: CLAUDE_CODE_SAFE_MODE=1 claude
 ```
 
 ### Fine-Grained Tool Permissions
@@ -402,6 +429,17 @@ You can control permissions at the individual tool level in your settings:
 ```
 
 **Critical rule:** `deny` takes precedence over everything — even `bypassPermissions` mode. This is your hard safety net.
+
+### Sandboxing
+
+For the highest level of autonomous safety, Claude Code supports OS-level **sandboxing** that restricts filesystem and network access using platform isolation (e.g., macOS sandbox profiles, Linux namespaces). When sandboxing is active, Claude can work freely within the defined boundaries without being able to affect the rest of your system.
+
+Sandboxing is most useful when:
+- Running Claude in `auto` or `bypassPermissions` mode on untrusted code
+- Evaluating third-party repositories
+- Running as part of a CI/CD pipeline with elevated permissions
+
+Enable sandboxing through your organization's managed policy or by configuring the sandbox profile in settings. Note that new tools or MCP servers may need to be explicitly allowed within the sandbox configuration.
 
 ### The Settings Hierarchy
 
@@ -708,7 +746,7 @@ Skills live in `.claude/skills/<name>/SKILL.md` (project-level) or `~/.claude/sk
 ---
 name: deploy
 description: Production deployment checklist for AWS ECS
-model: claude-sonnet
+model: claude-sonnet-4-6
 tools:
   - Bash
   - Read
@@ -787,6 +825,8 @@ graph TB
 | `PostToolUse` | After tool execution | Auto-formatting, linting, logging |
 | `UserPromptSubmit` | When user submits a prompt | Injecting reminders, validation |
 | `SessionStart` | When session begins | Environment setup, checks |
+| `SessionEnd` | When session ends | Save summaries, cleanup |
+| `Stop` | When Claude stops generating | Post-response processing, notifications |
 | `TeammateIdle` | Before teammate goes idle | Agent Teams coordination |
 | `TaskCreated` | When task is created | Agent Teams task management |
 | `TaskCompleted` | When task is marked complete | Agent Teams post-processing |
@@ -1227,10 +1267,18 @@ The CLI is perfect for interactive work, but for **programmatic control** — em
 ### Installation
 
 ```bash
-pip install claude-agent-sdk    # Requires Python 3.10+
+# Python (3.10+)
+pip install claude-agent-sdk
+
+# TypeScript / Node.js
+npm install @anthropic-ai/claude-code
 ```
 
-> **Note:** The older `claude-code-sdk` package is deprecated. Use `claude-agent-sdk`.
+The Python and TypeScript SDKs give you the same tools, agent loop, and context management that power Claude Code — fully programmable. The TypeScript package bundles the Claude Code binary for your platform, so no separate installation is needed.
+
+> **Note:** The older `claude-code-sdk` package is deprecated. Use `claude-agent-sdk` for Python.
+
+> **Pricing (as of June 2026):** Agent SDK and `claude -p` usage on subscription plans (Pro, Max, Team) draws from a separate monthly **Agent SDK credit** — it no longer counts against your interactive usage limits. API key users are billed per token as usual.
 
 ### Two Interaction Modes
 
@@ -1751,9 +1799,12 @@ Compresses your conversation history into a summary, freeing up context space.
 
 **Pro tip**: Don't wait for auto-compaction. It triggers at ~80-90% capacity, by which point quality has already degraded. Compact proactively at ~60%.
 
-**`/rewind` (or `Esc` `Esc`) — Undo Mistakes**
+**`/rewind` (or `Esc` `Esc`) — Checkpoints & Undo**
 
-Jumps back to a previous message, discarding everything after it.
+Claude Code automatically saves a **checkpoint** before every change it makes. `/rewind` (or pressing `Esc` twice) lets you roll back to any prior checkpoint. When you rewind, you can choose to restore:
+- **Code only** — resets files but keeps the conversation
+- **Conversation only** — re-prompts from that turn without reverting files
+- **Both** — full rollback to the saved state
 
 ```
 # When to use:
@@ -1761,6 +1812,8 @@ Jumps back to a previous message, discarding everything after it.
 # - You gave a bad instruction and want to re-prompt
 # - Better than saying "no, I meant..." (which keeps the bad path in context)
 ```
+
+Checkpoints are especially powerful for long autonomous runs — you can let Claude work freely and safely roll back if the result isn't what you wanted.
 
 #### The Session Handoff Pattern
 
@@ -2201,7 +2254,7 @@ Don't put the same information in `CLAUDE.md`, auto memory, AND `.claude/rules/`
 | `/compact` | Summarize conversation | Context at ~60% |
 | `/compact [focus]` | Directed summarization | Keep specific topics |
 | `/clear` | Wipe conversation | New unrelated task |
-| `/rewind` / `Esc Esc` | Undo to previous state | Claude went wrong |
+| `/rewind` / `Esc Esc` | Restore to a prior checkpoint (code, conversation, or both) | Claude went wrong or took the wrong path |
 | `/memory` | Open memory files in editor | Review/edit auto memory |
 | `/init` | Initialize CLAUDE.md | New project setup |
 | `/cost` | Show token usage | Monitor context usage |
@@ -2475,7 +2528,7 @@ Create agent definition files in `.claude/agents/` (project) or `~/.claude/agent
 ---
 name: code-reviewer
 description: "USE WHEN reviewing code changes. Focuses on security, performance, and best practices."
-model: claude-sonnet
+model: claude-sonnet-4-6
 tools:
   - Read
   - Glob
@@ -2553,6 +2606,22 @@ Each background session gets an isolated git worktree under `.claude/worktrees/`
 - Each parallel session consumes quota independently
 - Recommended: 3–5 parallel sessions for optimal performance
 - Commit changes in main checkout before dispatching tasks
+
+### Dynamic Workflows (Research Preview)
+
+Dynamic Workflows take parallelism to an extreme: Claude plans the work itself and then launches **hundreds of parallel subagents** in a single session to execute it. This enables codebase-scale migrations — e.g., refactoring hundreds of thousands of lines of code from kickoff to merge — without you managing the parallelism manually.
+
+```
+Migrate all usages of the deprecated `legacyAuth()` function across the entire codebase to the new `AuthClient` API.
+```
+
+With Dynamic Workflows enabled, Claude will:
+1. Map the scope of the migration
+2. Shard the work across parallel subagents
+3. Merge results and resolve conflicts
+4. Report the outcome
+
+This feature is available on **Enterprise, Team, and Max plans** and is currently in research preview.
 
 ---
 
@@ -2963,7 +3032,7 @@ When designing systems:
 3. Plan for future extensibility
 4. Document assumptions and constraints
 """,
-        "model": "claude-sonnet",
+        "model": "claude-sonnet-4-6",
         "tools": ["Read", "Glob", "Grep"],  # Read-only
         "permission_mode": "plan",
     },
@@ -2993,7 +3062,7 @@ When writing code:
 4. Add inline comments for complex logic
 5. Write code that's easy to test
 """,
-        "model": "claude-sonnet",
+        "model": "claude-sonnet-4-6",
         "tools": ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
         "permission_mode": "acceptEdits",
     },
@@ -3024,7 +3093,7 @@ When reviewing code:
 4. Architecture: compliance with the design plan
 5. Standards: follows project conventions (check CLAUDE.md)
 """,
-        "model": "claude-sonnet",
+        "model": "claude-sonnet-4-6",
         "tools": ["Read", "Glob", "Grep", "Bash(git diff)"],  # Read-only + git
         "permission_mode": "plan",
     },
@@ -3055,7 +3124,7 @@ When writing tests:
 5. Arrange-Act-Assert structure
 6. Keep tests fast and independent
 """,
-        "model": "claude-sonnet",
+        "model": "claude-sonnet-4-6",
         "tools": ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
         "permission_mode": "acceptEdits",
     },
@@ -3352,7 +3421,7 @@ When designing systems:
 3. Plan for future extensibility
 4. Document assumptions and constraints
 """,
-        "model": "claude-sonnet",
+        "model": "claude-sonnet-4-6",
         "tools": ["Read", "Glob", "Grep"],
         "permission_mode": "plan",
     },
@@ -3382,7 +3451,7 @@ When writing code:
 4. Add inline comments for complex logic
 5. Write code that's easy to test
 """,
-        "model": "claude-sonnet",
+        "model": "claude-sonnet-4-6",
         "tools": ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
         "permission_mode": "acceptEdits",
     },
@@ -3413,7 +3482,7 @@ When reviewing code:
 4. Architecture: compliance with the design plan
 5. Standards: follows project conventions (check CLAUDE.md)
 """,
-        "model": "claude-sonnet",
+        "model": "claude-sonnet-4-6",
         "tools": ["Read", "Glob", "Grep", "Bash(git diff)"],
         "permission_mode": "plan",
     },
@@ -3444,7 +3513,7 @@ When writing tests:
 5. Arrange-Act-Assert structure
 6. Keep tests fast and independent
 """,
-        "model": "claude-sonnet",
+        "model": "claude-sonnet-4-6",
         "tools": ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
         "permission_mode": "acceptEdits",
     },
@@ -3871,6 +3940,7 @@ claude --bg "task"              # Background session
 claude agents                   # Monitor background sessions
 claude update                   # Update Claude Code
 claude doctor                   # System health check
+claude --safe-mode              # Start with all customizations disabled
 ```
 
 ### Essential Slash Commands
@@ -3879,20 +3949,25 @@ claude doctor                   # System health check
 /plan       — Plan before executing
 /compact    — Compress context (save tokens)
 /clear      — Reset conversation
+/rewind     — Restore to a prior checkpoint
 /bg         — Move to background
 /memory     — Open auto memory files
 /cost       — Show token usage and cost
+/fast       — Toggle fast mode for Opus (same quality, higher speed)
 ```
 
 ### Essential Flags
 ```bash
---model claude-opus             # Use Opus model
+--model claude-opus-4-8         # Use Opus 4.8 (most capable)
+--model claude-sonnet-4-6       # Use Sonnet 4.6 (default)
+--model claude-haiku-4-5-20251001  # Use Haiku 4.5 (fastest)
 --permission-mode plan          # Read-only mode
 --max-budget-usd 5.00          # Cost cap
 --max-turns 10                  # Turn limit
 --output-format json            # Machine-readable output
 --effort high                   # Deep reasoning
 --add-dir ../other-project      # Add directory access
+--safe-mode                     # Disable all customizations (troubleshooting)
 ```
 
 ### Memory Management Commands
@@ -4145,15 +4220,15 @@ For research tasks, use the cheapest model that works:
 
 ```bash
 # Use Haiku for simple searches and aggregation
-claude --model claude-haiku -p \
+claude --model claude-haiku-4-5-20251001 -p \
   "find all TODOs in the codebase and create a prioritized list"
 
 # Use Sonnet for moderate complexity
-claude --model claude-sonnet -p \
+claude --model claude-sonnet-4-6 -p \
   "explain the authentication flow in this codebase"
 
-# Reserve Opus for complex analysis
-claude --model claude-opus --permission-mode plan \
+# Reserve Opus for complex analysis (with /fast for speed)
+claude --model claude-opus-4-8 --permission-mode plan \
   "analyze this codebase for architectural code smells and design pattern violations"
 ```
 
