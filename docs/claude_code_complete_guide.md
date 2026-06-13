@@ -558,9 +558,23 @@ D) `claude -r`
 
 ### Why CLAUDE.md Matters
 
-Every time you start a Claude Code session, the first thing Claude does is read `CLAUDE.md` from your project root. This file is your **persistent project context** — it tells Claude about your tech stack, coding standards, architecture decisions, and rules.
+Every time you start a Claude Code session, the first thing Claude does is read `CLAUDE.md` from your project root. This file is your **persistent project context** — it tells Claude about your tech stack, coding standards, architecture decisions, and workflow conventions.
 
-Without `CLAUDE.md`, Claude has to rediscover your project conventions every session. With it, Claude starts every session already knowing how your project works.
+Without `CLAUDE.md`, Claude has to rediscover your project conventions every session. With it, Claude starts every session already knowing how your project works — which commands to run, which patterns to follow, which areas to avoid. The payoff compounds: a well-maintained `CLAUDE.md` is the single highest-leverage investment you can make in your Claude Code workflow.
+
+### How Claude Loads CLAUDE.md
+
+Claude Code builds its context from multiple `CLAUDE.md` files, loaded in order and merged:
+
+```
+~/.claude/CLAUDE.md              ← global: applies to every project
+./CLAUDE.md                      ← project root: the main file
+./.claude/rules/*.md             ← scoped rules (path-filtered, see below)
+```
+
+All loaded files are injected into the system prompt before your first message. The global file is useful for personal preferences that travel with you across projects (preferred diff style, communication tone, editor keybindings you always want respected). The project file is for team-shared conventions checked into version control.
+
+> **Context cost:** CLAUDE.md typically occupies ~5% of the context window. Keep it focused — padding it with obvious information wastes space that could hold actual code.
 
 ### Creating Your First CLAUDE.md
 
@@ -570,56 +584,150 @@ claude
 /init    # Claude analyzes your project and generates a CLAUDE.md
 ```
 
-The `/init` command reads your project structure, existing config files (like `pyproject.toml`, `package.json`, `Makefile`), and code patterns to generate a sensible starting point.
+The `/init` command reads your project structure, existing config files (`pyproject.toml`, `package.json`, `Makefile`, `go.mod`, etc.), and code patterns to generate a sensible starting point. Treat it as a first draft — review it, cut anything obvious, and add what it missed.
+
+You can also create one manually from scratch. Many engineers find hand-written `CLAUDE.md` files end up more useful than generated ones because you're forced to be deliberate about what Claude actually needs to know.
 
 ### Anatomy of a Well-Crafted CLAUDE.md
 
+A good `CLAUDE.md` answers four questions Claude cannot easily answer by reading the code alone:
+
+1. **How do I build, test, and run this project?** (commands, not obvious from file structure)
+2. **What are the non-obvious architectural decisions?** (things that would surprise a new engineer)
+3. **What conventions must I follow?** (things that diverge from common defaults)
+4. **What must I never touch?** (areas that are off-limits and why)
+
 ```markdown
-# Project: WeatherAPI
+# CLAUDE.md
 
-## Tech Stack
-- Python 3.12, FastAPI 0.110+, SQLAlchemy 2.0, PostgreSQL 16
-- Async everywhere — use async/await for all I/O
-- Alembic for database migrations
-- pytest + pytest-asyncio for testing
+This file provides guidance to Claude Code (claude.ai/code) when working
+with code in this repository.
 
-## Architecture
-- Clean architecture: domain → application → infrastructure
-- All database access through the repository pattern
-- Services layer handles business logic; routes are thin controllers
-- Dependency injection via FastAPI's Depends()
+## Commands
 
-## Coding Standards
-- Type hints on ALL function signatures (no exceptions)
-- PEP 8 with max line length 100
-- Use `loguru` for logging, never `print()`
-- Docstrings: Google style, required for all public functions
+```bash
+# Install
+pixi install
 
-## Testing
-- Run: `pytest -x --tb=short`
-- Minimum 80% coverage for new code
-- Use factory_boy for test fixtures
-- Mock external APIs with `respx`
+# Run dev server (hot-reload)
+pixi run dev
 
-## Off-Limits — DO NOT MODIFY
-- `alembic/versions/` — migration files are immutable once created
-- `.github/workflows/` — CI/CD is managed by DevOps
-- `infrastructure/terraform/` — infrastructure as code, separate process
+# Tests
+pytest -x --tb=short          # stop on first failure
+pytest -k "test_auth"         # single test by name
+pytest --cov=src --cov-report=term-missing
+
+# Linting / formatting
+ruff check . && ruff format .
+mypy src/
 ```
 
-### Advanced: Scoped Rules
+## Architecture
 
-For large monorepos, put directory-specific rules in `.claude/rules/*.md` with `paths:` frontmatter:
+This is a FastAPI service using clean architecture:
+- `src/domain/` — pure business logic, no framework imports
+- `src/application/` — use cases that orchestrate domain objects
+- `src/infrastructure/` — DB, HTTP clients, external services
+- `src/api/` — thin FastAPI routers; no business logic here
+
+All database access goes through repository interfaces defined in
+`src/domain/`. Concrete implementations live in `src/infrastructure/repos/`.
+Never import SQLAlchemy models into the domain layer.
+
+## Conventions
+
+- Async/await for all I/O — no sync DB calls
+- Type hints required on all public function signatures
+- Use `loguru` for logging; never `print()`
+- Pydantic v2 models for all API request/response shapes
+- Migrations: `alembic revision --autogenerate -m "description"` then review
+
+## Off-Limits
+
+- `alembic/versions/` — migration files are immutable once merged
+- `.github/workflows/` — CI/CD owned by the platform team
+- `infrastructure/` — Terraform managed separately, never edit here
+```
+
+Notice what this example does **not** include: it doesn't explain what FastAPI is, doesn't list every file in the project, and doesn't repeat information already in `pyproject.toml`. Claude can read those files. `CLAUDE.md` fills the gaps that code and config can't.
+
+### What to Include — and What to Skip
+
+The most common mistake is writing a `CLAUDE.md` that's either too sparse (no real guidance) or too verbose (padding with things Claude already knows). Here's how to tell them apart:
+
+| Include | Skip |
+|---|---|
+| Non-obvious build/test commands | `git commit`, `ls`, standard CLI basics |
+| Architecture decisions that defy convention | That you use a `src/` layout (readable from the tree) |
+| Libraries chosen over common alternatives and why | What those libraries do |
+| Paths that are off-limits and the reason | Vague "be careful with production" warnings |
+| Team conventions that diverge from community defaults | PEP 8 (assumed for Python projects) |
+| Known footguns specific to this codebase | Generic "write good code" advice |
+
+**Example of bad content:**
+
+```markdown
+## Guidelines
+- Write clean, readable code
+- Add comments to explain complex logic
+- Handle errors gracefully
+- Never commit API keys or secrets
+```
+
+None of this is actionable or project-specific. Claude already knows all of it.
+
+**Example of good content:**
+
+```markdown
+## Known footguns
+- `User.deactivate()` sends an email — don't call it in tests without
+  mocking `src/notifications/email.py::send_email`
+- The `reports/` module lazily imports `pandas` at call time; importing
+  it at the top of a new file will break the CLI startup time budget
+- `make migrate` on the dev DB requires `PG_CONN` to be set; the
+  `.env.example` has a working local default
+```
+
+### Importing Other Files
+
+For sections that are long or change independently, you can pull in external files with `@path/to/file`:
+
+```markdown
+# CLAUDE.md
+
+## Architecture
+@docs/architecture.md
+
+## API Reference
+@docs/api-conventions.md
+
+## Commands
+```bash
+pytest -x
+ruff check .
+```
+```
+
+Claude reads the referenced files at session start, exactly as if their content were inline. This is useful for:
+- Keeping `CLAUDE.md` short while linking to living documentation
+- Sharing a conventions doc between `CLAUDE.md` and human-facing docs
+- Splitting a large monorepo `CLAUDE.md` into per-domain files
+
+### Scoped Rules for Monorepos
+
+For large monorepos, put directory-specific rules in `.claude/rules/*.md` with `paths:` frontmatter. Claude only loads a scoped rule file when the active files match its paths:
 
 ```markdown
 ---
 paths:
   - src/api/**
 ---
-# API Development Rules
-- All endpoints must have OpenAPI docstrings
-- Use Pydantic v2 models for request/response validation
-- Rate limiting required on all public endpoints
+# API Layer Rules
+
+- All endpoints must have OpenAPI docstrings (`summary`, `description`, `response_model`)
+- Use Pydantic v2 models for request/response — no raw `dict` returns
+- Rate limiting middleware is required on all public (unauthenticated) endpoints
+- Return `409 Conflict` for duplicate resource creation, not `400`
 ```
 
 ```markdown
@@ -628,24 +736,103 @@ paths:
   - src/ml/**
 ---
 # ML Pipeline Rules
-- Use pandas 2.0+ with PyArrow backend
-- All model artifacts go to `models/` directory
-- Log all experiments with MLflow
+
+- Use pandas 2.0+ with the PyArrow backend (`pd.options.mode.dtype_backend = "pyarrow"`)
+- All model artifacts go to `models/{experiment_name}/{run_id}/`
+- Log every experiment with MLflow before committing results
+- Never store raw training data in the repo — use DVC refs
 ```
 
-This way, when Claude is working in `src/api/`, it loads the API rules. When it's in `src/ml/`, it loads the ML rules. This keeps context lean and relevant.
+This keeps context lean: when Claude is editing an API route, it doesn't need to know MLflow conventions, and vice versa.
 
-### Best Practices
+### Project-Type Templates
 
-| Do | Don't |
-|----|-------|
-| Keep under 200 lines | Write a novel |
-| State what tools/commands to use | List every file in the project |
-| Define architecture patterns | Explain basic programming concepts |
-| Specify off-limits areas | Use CLAUDE.md for enforcement (use hooks instead) |
-| Update when stack changes | Let it become stale |
+These are starting skeletons — trim aggressively for your actual project.
 
-> **Key insight:** CLAUDE.md is for conventions and context — things Claude should *know*. For things Claude should *never do*, use hooks (covered in Section 8). Prompt instructions are probabilistic; hooks are deterministic.
+**Python backend (FastAPI / Django / Flask)**
+
+```markdown
+## Commands
+pytest -x --tb=short
+ruff check . && ruff format .
+mypy src/
+
+## Architecture
+[Describe your layering: routes → services → repos, or equivalent]
+[State any ORM conventions: session lifecycle, lazy loading gotchas]
+
+## Conventions
+- All endpoints return typed Pydantic models
+- Use `structlog` / `loguru` — not the stdlib `logging` directly
+- DB migrations via Alembic — review autogenerated output before applying
+
+## Off-Limits
+- `migrations/` — never hand-edit migration files
+```
+
+**TypeScript / Node (Next.js / Express)**
+
+```markdown
+## Commands
+pnpm dev          # dev server with hot reload
+pnpm test         # vitest
+pnpm lint         # eslint + tsc --noEmit
+
+## Architecture
+[Server components vs client components boundary, if Next.js]
+[State management: Zustand / Redux / Context — pick one and note it]
+[API layer: tRPC / REST / GraphQL and the conventions that go with it]
+
+## Conventions
+- `'use client'` only when you need browser APIs or event handlers
+- All fetch calls go through `src/lib/api.ts` — never raw `fetch` in components
+- Environment variables: server-only vars in `.env.local`, public vars prefixed `NEXT_PUBLIC_`
+```
+
+**Go service**
+
+```markdown
+## Commands
+go build ./...
+go test ./... -race
+golangci-lint run
+
+## Architecture
+Standard Go project layout: `cmd/`, `internal/`, `pkg/`
+[Describe any domain boundaries within `internal/`]
+
+## Conventions
+- Errors are values — wrap with `fmt.Errorf("context: %w", err)`
+- No `init()` functions outside of `main` packages
+- Use `context.Context` as the first argument for all I/O functions
+```
+
+### Maintaining Your CLAUDE.md
+
+A `CLAUDE.md` that drifts out of sync with the codebase is worse than none — it actively misleads. Treat it like a test: it should fail (be updated) when something it describes changes.
+
+**When to update:**
+- You change the test runner, linter, or build tool
+- You adopt a new library that replaces an old one
+- You establish a new architectural pattern
+- You discover a footgun that bit someone
+
+**Testing your CLAUDE.md:**
+Run Claude with `--safe-mode` to disable all customizations, then in a normal session ask Claude the same question. If the answers differ meaningfully, your `CLAUDE.md` is doing useful work. If they're the same, the content might be redundant.
+
+You can also ask Claude directly at the start of a session:
+
+```
+What do you know about how this project is structured and what commands I use?
+```
+
+If the answer is vague or wrong, your `CLAUDE.md` needs work.
+
+### The CLAUDE.md / Hooks Distinction
+
+> **Key insight:** `CLAUDE.md` is for conventions and context — things Claude should *know*. For things Claude should *never do*, use hooks (covered in Section 8). Prompt instructions are probabilistic; hooks are deterministic.
+
+If you find yourself writing "NEVER do X" in `CLAUDE.md`, ask whether a hook would be more appropriate. A hook that blocks a shell command is guaranteed. A `CLAUDE.md` instruction that says not to run that command is a strong suggestion that Claude will follow almost always — but not always.
 
 ---
 
