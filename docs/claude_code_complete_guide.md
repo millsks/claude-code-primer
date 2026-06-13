@@ -564,6 +564,8 @@ Without `CLAUDE.md`, Claude has to rediscover your project conventions every ses
 
 ### How Claude Loads CLAUDE.md
 
+> **Source:** [Explore the .claude directory](https://code.claude.com/docs/en/claude-directory.md) — official Claude Code documentation.
+
 Claude Code builds its context from multiple instruction files, loaded in a specific order and merged into the system prompt before your first message. Understanding every location — and when each one loads — lets you put instructions exactly where they belong.
 
 #### All Instruction File Locations
