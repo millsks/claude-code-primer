@@ -44,7 +44,7 @@ cov       = { cmd = "pytest --cov=src/logwatch --cov-report=term-missing --cov-f
 lint      = { cmd = "ruff check .",                                                                description = "Lint source code"                       }
 fmt       = { cmd = "ruff format .",                                                               description = "Format source code"                     }
 check     = { cmd = "mypy src/logwatch",                                                           description = "Type-check source"                      }
-changelog = { cmd = "git cliff -o CHANGELOG.md",                                                   description = "Generate CHANGELOG.md"                  }
+changelog = { cmd = "git-cliff --tag \"$(date +%Y-%m-%d)\" -o CHANGELOG.md",                      description = "Regenerate CHANGELOG.md"                }
 watch     = { cmd = "logwatch",                                                                    description = "Run logwatch (append args after --)"    }
 ci        = { depends-on = ["build", "cov", "check", "lint"],                                      description = "Full validation sequence"               }
 act       = { cmd = "act --container-architecture linux/amd64",                                    description = "Run CI locally via nektos/act"          }

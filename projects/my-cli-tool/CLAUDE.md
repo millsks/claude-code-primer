@@ -36,7 +36,7 @@ pixi run ci               # build → cov → check → lint
 
 # Other tasks
 pixi run cov              # pytest with coverage (≥90% required)
-pixi run changelog        # generate CHANGELOG.md via git-cliff
+pixi run changelog        # regenerate CHANGELOG.md (tag = today's date)
 pixi run act              # run CI locally via nektos/act
 ```
 
