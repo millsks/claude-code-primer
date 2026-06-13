@@ -1528,81 +1528,433 @@ Every command available in Claude Code, listed alphabetically. Commands marked *
 
 [↑ Table of Contents](#table-of-contents)
 
-### What Are Skills?
+### The Mental Model
 
-Skills are **reusable, invocable workflows** defined as markdown files. Think of them as custom slash commands that teach Claude domain-specific procedures.
+Skills are **reusable, invocable workflows** defined as markdown files. Every custom slash command in Claude Code is a skill. When you type `/deploy`, Claude reads the `SKILL.md` file for that skill and follows its instructions — the same way it follows a message you typed, except the instructions are pre-written and reusable.
 
-Key properties:
-- **On-demand loading** — only descriptions are loaded at session start; full content loads when invoked
-- **Auto-discovery** — Claude can detect and load relevant skills based on your task
-- **Minimal context cost** — near-zero overhead until actually used
+The key insight: skills are **on-demand instructions**, not always-on configuration. Claude loads only skill *descriptions* at session start (near-zero cost). The full skill content — potentially hundreds of lines of detailed procedure — only enters the context when the skill is actually invoked.
 
-### Creating a Skill
+This on-demand architecture is what makes skills practical. You can have dozens of detailed runbooks available without bloating every session's context.
 
-Skills live in `.claude/skills/<name>/SKILL.md` (project-level) or `~/.claude/skills/<name>/SKILL.md` (user-level):
+> **Section 7 covers the technical reference** — the full frontmatter field table, argument syntax, shell execution syntax, and invocation controls. This section covers design: when to create a skill, how to structure it, how to build a library that actually gets used.
 
+---
+
+### The Three-Layer Decision
+
+Before creating a skill, decide whether the knowledge belongs in `CLAUDE.md`, a skill, or a hook. These are not interchangeable.
+
+| Layer | Lives In | Loaded | Invocable | Use When |
+|---|---|---|---|---|
+| **Standing rules** | `CLAUDE.md` | Every session, always | No | Claude must *always* know this — coding standards, off-limits areas, team conventions |
+| **Reusable procedure** | Skill (`SKILL.md`) | On-demand | Yes, via `/command` | Claude should follow this *when asked* — deployment runbooks, review checklists, migration steps |
+| **Automatic reaction** | Hook (`settings.json`) | Triggered by events | No | This should happen *automatically* — run tests after every edit, validate commits, enforce gates |
+
+A good test: **"Would I want Claude to do this without being asked?"** If yes, it's a hook. **"Is this a procedure I'll repeat?"** If yes, it's a skill. **"Does Claude need to know this constantly?"** If yes, it's `CLAUDE.md`.
+
+The same runbook put in `CLAUDE.md` costs context in every session, even when it's irrelevant. As a skill, it costs nothing until you need it.
+
+---
+
+### Anatomy of a Well-Designed Skill
+
+A skill is a directory, not a file. The directory name is the command name. The `SKILL.md` is the entry point.
+
+```text
+.claude/skills/
+├── fix-issue/
+│   └── SKILL.md                    # /fix-issue
+├── deploy/
+│   ├── SKILL.md                    # /deploy
+│   ├── pre-flight-checklist.md     # referenced from SKILL.md
+│   └── scripts/
+│       └── health-check.sh
+└── api-review/
+    ├── SKILL.md                    # /api-review
+    ├── checklist.md
+    └── examples/
+        └── good-api.md
 ```
-.claude/
-  skills/
-    deploy/
-      SKILL.md
-      scripts/
-        health_check.sh
-    security-audit/
-      SKILL.md
+
+**Keep `SKILL.md` under 500 lines.** Move detailed reference material to supporting files in the same directory. Claude loads supporting files on demand when `SKILL.md` references them — the same on-demand pattern as skills themselves.
+
+Reference from `SKILL.md`:
+
+```markdown
+For the full pre-flight checklist, see [pre-flight-checklist.md](pre-flight-checklist.md).
 ```
 
-### Example: A Deployment Skill
+This lets you build rich, detailed runbooks without paying the full token cost upfront.
+
+---
+
+### Making Skills Discoverable
+
+Claude auto-suggests skills based on the `description` and `when_to_use` frontmatter fields. The quality of these fields determines whether Claude ever surfaces the skill spontaneously.
+
+**Weak description:**
+
+```yaml
+description: Deployment helper
+```
+
+Claude will rarely auto-suggest this. The description is too vague to match any specific request.
+
+**Strong description:**
+
+```yaml
+description: |
+  Deploy the application to AWS ECS (production or staging).
+  Use when the user asks to deploy, ship, release, push to prod, or promote a build.
+  Runs pre-flight checks, builds and pushes the Docker image, updates the ECS task definition,
+  and monitors stabilization. Always requires explicit user invocation — never auto-deploy.
+when_to_use: |
+  "deploy to staging", "push this to prod", "release the build", "ship it",
+  "run the deployment", "update production"
+```
+
+The `description` field is what Claude reads when deciding relevance. The `when_to_use` field extends it with example phrasings. Both are capped at 1,536 combined characters.
+
+The `paths` frontmatter field lets you scope auto-activation to specific file contexts:
+
+```yaml
+paths:
+  - "migrations/**"
+  - "**/*migration*.py"
+```
+
+With this set, Claude will only auto-suggest the skill when working on files matching those patterns — preventing it from showing up in irrelevant sessions.
+
+---
+
+### Scope Strategy: Personal vs. Project Skills
+
+Where you store a skill determines who can use it:
+
+| Scope | Location | Best For |
+|---|---|---|
+| **Personal** | `~/.claude/skills/<name>/SKILL.md` | Your own workflows, across all projects |
+| **Project** | `.claude/skills/<name>/SKILL.md` | Team-shared procedures, checked into the repo |
+| **Legacy** | `.claude/commands/<name>.md` | Still works; equivalent to a project skill without the directory |
+
+**Project skills are team skills.** Committing `.claude/skills/` to the repository means every team member gets the same runbooks automatically. A new engineer cloning the repo inherits the deployment procedure, the migration checklist, and the code review workflow on day one.
+
+**Personal skills are your power tools.** Workflows you use across projects — a PR description writer, a commit message polisher, a log analyzer — belong in `~/.claude/skills/`. They travel with you regardless of which project you're in.
+
+When the same skill name exists at both scopes, the project skill wins. This lets teams override personal defaults for project-specific behavior.
+
+---
+
+### Argument Patterns
+
+Three substitution patterns are available (full reference in §7):
+
+| Pattern | What It Gives You | Example |
+|---|---|---|
+| `$ARGUMENTS` | Everything after the command name | `/fix-issue 247` → `$ARGUMENTS` = `247` |
+| `$0`, `$1`, `$2` | Individual arguments by position | `/deploy staging eu-west` → `$0` = `staging`, `$1` = `eu-west` |
+| `$name` | Named argument declared in frontmatter | `arguments: [env, region]` → `$env`, `$region` |
+
+Wrap multi-word arguments in quotes: `/skill "my component" json` makes `$0` = `my component`.
+
+**Choosing between patterns:**
+
+Use `$ARGUMENTS` for simple single-argument skills where you just need the whole string. Use positional `$0`/`$1` when you need exactly two or three ordered values and the ordering is obvious from context. Use named arguments when there are multiple parameters and the names help Claude understand what each one means.
+
+**Example with named arguments:**
 
 ```markdown
 ---
-name: deploy
-description: Production deployment checklist for AWS ECS
-model: claude-sonnet-4-6
-tools:
-  - Bash
-  - Read
-  - WebFetch
+description: Migrate database schema from one version to another
+arguments: [from_version, to_version]
+disable-model-invocation: true
+allowed-tools: Bash(alembic *) Bash(psql *) Bash(pg_dump *)
 ---
 
-# Production Deployment Procedure
+Migrate the database from schema version $from_version to $to_version:
 
-## Pre-Deployment Checks
-1. Run the full test suite: `pytest -x --tb=short`
-2. Verify no uncommitted changes: `git status --porcelain`
-3. Check that the branch is up-to-date with main: `git fetch && git log HEAD..origin/main --oneline`
-
-## Build Phase
-1. Build Docker image: `docker build -t myapp:$(git rev-parse --short HEAD) .`
-2. Run smoke tests against the image: `docker run --rm myapp:latest python -c "import app; print('OK')"`
-3. Push to ECR: `aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REPO && docker push $ECR_REPO:latest`
-
-## Deploy Phase
-1. Update ECS task definition with new image
-2. Update service: `aws ecs update-service --cluster prod --service myapp --force-new-deployment`
-3. Wait for stabilization: `aws ecs wait services-stable --cluster prod --services myapp`
-
-## Post-Deployment Verification
-1. Run health check: `curl -f https://api.myapp.com/health`
-2. Check error rates in CloudWatch for 5 minutes
-3. If errors spike > 1%, initiate rollback
+1. Back up the database: `pg_dump $DATABASE_URL > backup-$(date +%Y%m%d-%H%M%S).sql`
+2. Review the migration files between $from_version and $to_version
+3. Run: `alembic upgrade $to_version`
+4. Verify the schema: `alembic current`
+5. Run the integration test suite against the migrated schema
 ```
 
-Invoke it with: `/deploy` or simply ask Claude to deploy and it will auto-discover the skill.
+Invoke with: `/migrate-schema 001 007`
+
+---
+
+### Dynamic Context with Shell Execution
+
+The `` !`command` `` syntax runs a shell command when the skill loads, before Claude sees any content. The output is injected inline.
+
+This is the pattern that turns a static runbook into a context-aware procedure. Instead of telling Claude to go read the PR, you inject the PR diff directly:
+
+```markdown
+---
+description: Review the current pull request for correctness and test coverage
+---
+
+## Pull Request: !`gh pr view --json title,number --jq '"#\(.number): \(.title)"'`
+
+**Branch:** !`git branch --show-current`
+**Base:** !`gh pr view --json baseRefName --jq .baseRefName`
+
+**Diff:**
+!`gh pr diff`
+
+**Open review comments:**
+!`gh pr view --comments`
+
+Review this PR for:
+1. Correctness bugs — does the code do what the PR description says?
+2. Missing tests — are new code paths covered?
+3. Breaking changes — does anything change existing behavior without a migration path?
+4. Security issues — user input, auth bypass, sensitive data exposure
+```
+
+When `/review-pr` is invoked, Claude immediately has the full diff, comments, and metadata in context without having to fetch them itself.
+
+**Multi-line shell output** uses a fenced block with `!`:
+
+````markdown
+## Environment
+```!
+python --version
+pixi --version
+git log --oneline -5
+```
+````
+
+Shell execution runs at load time. The output is plain text and is not re-scanned for further `!` placeholders. If a command fails, the skill still loads — the output is an empty string.
+
+---
+
+### Safety Patterns: Controlling Invocation
+
+Two of the most important frontmatter fields are `disable-model-invocation` and `allowed-tools`. Understanding them is essential for skills with real-world side effects.
+
+#### Preventing Autonomous Execution
+
+```yaml
+disable-model-invocation: true
+```
+
+This prevents Claude from auto-loading the skill based on conversation context. The user must explicitly type `/deploy` — Claude cannot decide on its own that the deploy skill is relevant.
+
+**Always set this for:**
+- Deployment commands
+- Database mutations
+- Commits, pushes, PRs
+- Any command that sends a message or notification
+- Anything you would not want happening without explicit approval
+
+Without `disable-model-invocation: true`, Claude can invoke the skill autonomously when it decides the skill is relevant. For a code-review helper, that's fine. For a production deploy, it is not.
+
+#### Pre-Approving Specific Tools
+
+```yaml
+allowed-tools: Bash(git add *) Bash(git commit *) Bash(git status *) Bash(git diff *)
+```
+
+`allowed-tools` scopes permission grants to specific commands, so Claude can run them during the skill without a per-call permission prompt. The narrower the scope, the safer the grant.
+
+For a commit skill, approving `Bash(git *)` broadly is less safe than approving only the specific subcommands the skill actually needs.
+
+The inverse is `disallowed-tools` — tools removed from Claude's available set while the skill runs. Use this for read-only audit skills where you want to guarantee Claude cannot write files:
+
+```yaml
+disallowed-tools: Edit Write Bash
+```
+
+---
+
+### Running Skills in Isolated Subagents
+
+Set `context: fork` to run a skill in an isolated subagent context. The skill content becomes the subagent's entire prompt — it has no access to the parent conversation history.
+
+```yaml
+---
+description: Deep audit of the codebase for a specific vulnerability class
+context: fork
+agent: Explore
+disable-model-invocation: true
+---
+
+Audit the codebase for $ARGUMENTS vulnerabilities:
+
+1. Search for all uses of `eval()`, `exec()`, `subprocess` with `shell=True`
+2. Find SQL queries constructed with string concatenation or f-strings
+3. Identify any deserialization of untrusted data (pickle, yaml.load without Loader)
+4. Check for hardcoded credentials, tokens, or secrets
+5. Report every finding with file path, line number, and severity (high/medium/low)
+```
+
+Use `context: fork` when:
+- The task is purely investigative and should not change the parent conversation
+- You want to run an Explore agent that intentionally skips `CLAUDE.md` for a smaller context footprint
+- The task is long-running and you want it isolated from ongoing parent work
+
+The `agent` field selects the subagent type. `Explore` is read-only and fast. `Plan` focuses on architecture over implementation. `general-purpose` has all tools available. Custom agent types from `.claude/agents/` can also be specified here.
+
+---
+
+### The Context Lifecycle: What Happens After Invocation
+
+When you invoke a skill, its rendered content (with arguments substituted and shell commands executed) is injected into the conversation as a user message. It stays in context for the remainder of the session.
+
+**Implication:** Claude does not re-read the skill file on subsequent turns. If you invoke `/deploy` and then ask three follow-up questions, the deploy instructions are still in context. The skill is not re-executed — it was a one-time injection.
+
+**Write skills as standing instructions**, not one-shot procedures. Instead of:
+
+```markdown
+Do the following steps now:
+1. Check git status
+2. Run tests
+```
+
+Write:
+
+```markdown
+When performing a deployment, follow this procedure in order:
+1. Check git status
+2. Run tests
+```
+
+The first form implies a single execution. The second form means Claude treats the instructions as governing all deployment-related actions for the session.
+
+**After `/compact`:** Claude re-attaches recently invoked skills within a shared 25,000-token budget, keeping the first 5,000 tokens of each skill. If a skill stops influencing Claude's behavior after compaction, the skill content is being truncated. Fix this by:
+- Moving critical instructions to the top of the `SKILL.md` file
+- Keeping the total skill content under 5,000 tokens
+- Re-invoking the skill after a `/compact` if needed
+
+---
+
+### A Practical Skill Library
+
+These four patterns cover the most common use cases. Use them as starting points.
+
+#### Pattern 1: GitHub Issue Fix
+
+```markdown
+---
+description: Fix a GitHub issue end-to-end — read, implement, test, commit
+argument-hint: <issue-number>
+---
+
+Fix GitHub issue #$ARGUMENTS:
+
+1. Read the issue: `gh issue view $ARGUMENTS`
+2. Understand the requirements before writing any code
+3. Implement the fix following the project's coding standards in CLAUDE.md
+4. Write a test that proves the fix works and would have caught the bug
+5. Run the test suite: `pixi run test`
+6. Commit: `git commit -m "fix: resolve #$ARGUMENTS <short description>"`
+7. Open a PR that references the issue: `gh pr create --title "fix: ..." --body "Closes #$ARGUMENTS"`
+```
+
+#### Pattern 2: PR Description Writer
+
+```markdown
+---
+description: Write a clear PR description for the current branch
+disable-model-invocation: true
+---
+
+Write a pull request description for the current branch.
+
+**Current branch:** !`git branch --show-current`
+
+**Commits since main:**
+!`git log main..HEAD --oneline`
+
+**Diff summary:**
+!`git diff main...HEAD --stat`
+
+The description should include:
+- A one-sentence summary of what changed and why
+- A bullet list of the key changes
+- A test plan — what to verify manually and what the automated tests cover
+- Any migration steps or breaking changes
+
+Do not create the PR. Output only the title and body for review.
+```
+
+#### Pattern 3: Dependency Upgrade
+
+```markdown
+---
+description: Upgrade a dependency safely — check compatibility, update, test, commit
+arguments: [package]
+disable-model-invocation: true
+---
+
+Upgrade the $package dependency:
+
+1. Check the current version: `pixi list | grep $package`
+2. Look up the latest version and its changelog
+3. Update `pixi.toml` to the new version
+4. Run `pixi install` to resolve the lockfile
+5. Run the full test suite: `pixi run cov`
+6. If tests pass, commit: `git commit -m "chore(deps): upgrade $package to <new-version>"`
+7. If tests fail, report what broke and stop — do not commit
+```
+
+#### Pattern 4: Database Migration
+
+```markdown
+---
+description: Create and apply an Alembic database migration
+arguments: [description]
+disable-model-invocation: true
+allowed-tools: Bash(alembic *) Bash(psql *) Read Edit
+---
+
+Create and apply a database migration for: $description
+
+1. Review the current schema: `alembic current`
+2. Generate the migration: `alembic revision --autogenerate -m "$description"`
+3. Open the generated migration file and verify the `upgrade()` and `downgrade()` functions are correct
+4. Test the upgrade: `alembic upgrade head`
+5. Test the downgrade: `alembic downgrade -1`
+6. Re-apply: `alembic upgrade head`
+7. Run integration tests: `pixi run test-integration`
+8. Commit the migration file: `git add alembic/versions/ && git commit -m "feat(db): $description"`
+```
+
+---
 
 ### Skills vs. CLAUDE.md vs. Subagents
 
-| Aspect | CLAUDE.md | Skills | Subagents |
-|--------|-----------|--------|-----------|
-| **Loaded when** | Every session (always-on) | On-demand | On-demand |
-| **Invocable** | No | Yes (via `/` commands) | Yes |
-| **Context cost** | Full content, always | Near-zero until invoked | Isolated context window |
-| **Best for** | Always-enforced conventions | Task-specific procedures | Parallel/file-heavy tasks |
-| **Scope** | What Claude should *know* | What Claude should *do* | What Claude should *delegate* |
+| Aspect | CLAUDE.md | Skill | Subagent |
+|---|---|---|---|
+| **Loaded when** | Every session, always | On-demand, when invoked | On-demand, when spawned |
+| **Invocable by user** | No | Yes, via `/command` | Not directly |
+| **Context cost** | Full content, every session | Near-zero until invoked; 5K token floor post-compaction | Isolated context window |
+| **Conversation access** | Informs all turns | Injected at invocation, persists for session | None (`context: fork`) or full (general-purpose) |
+| **Side effects** | None — instructions only | Yes, via tool calls | Yes, via tool calls |
+| **Best for** | Standards, conventions, off-limits areas | Repeatable procedures, runbooks, checklists | Parallel work, file-heavy investigation, delegated tasks |
+| **Scope of guidance** | What Claude should *always know* | What Claude should *do when asked* | What Claude should *handle independently* |
 
-### Tip: Dynamic Skill Arguments
+---
 
-Skills support YAML frontmatter that can define dynamic arguments, model overrides, and tool restrictions. This makes them powerful building blocks for custom workflows.
+### Managing Your Skill Library
+
+**Reloading skills without restarting:** Use `/reload-skills` to re-scan skill directories after adding or editing a skill. No session restart needed.
+
+**Inspecting what's loaded:** Run `/skills` to list all available skills. Press `t` to sort by token count (useful for identifying bloated skills). Press `Space` on a skill to hide it from Claude and the `/` menu for the current session.
+
+**Naming conventions:**
+- Use kebab-case: `/fix-issue`, `/deploy-staging`, `/api-review`
+- Prefix environment-specific skills: `/deploy-prod`, `/deploy-staging` rather than a single `/deploy $env`
+- Prefix team vs. personal skills differently if you maintain both: personal skills might start with your initials
+
+**When a skill isn't working:**
+1. Check that the file is at exactly `.claude/skills/<name>/SKILL.md` — not `skills/<name>.md` or any other path
+2. Run `/reload-skills` if you edited the file mid-session
+3. Check that `disable-model-invocation: true` is not set if you want Claude to suggest the skill automatically
+4. Invoke directly with `/skill-name` to bypass auto-discovery entirely
+5. Use `/usage` to see how many tokens the skill consumed — if it's 0, the skill did not load
 
 [↑ Top of section](#8-the-skills-system-reusable-workflows) | [↑ Table of Contents](#table-of-contents)
 
