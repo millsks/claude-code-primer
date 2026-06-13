@@ -704,7 +704,7 @@ with code in this repository.
 
 ## Commands
 
-```bash
+``bash
 # Install
 pixi install
 
@@ -719,7 +719,7 @@ pytest --cov=src --cov-report=term-missing
 # Linting / formatting
 ruff check . && ruff format .
 mypy src/
-```
+``
 
 ## Architecture
 
@@ -801,10 +801,10 @@ For sections that are long or change independently, you can pull in external fil
 @docs/api-conventions.md
 
 ## Commands
-```bash
+``bash
 pytest -x
 ruff check .
-```
+``
 ```
 
 Claude reads the referenced files at session start, exactly as if their content were inline. This is useful for:
