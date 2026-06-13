@@ -107,7 +107,7 @@ graph TB
 
     User((Developer)) --> Engine
     Engine --> Tools
-    Tools --> |Read, Write, Edit,<br/>Bash, Grep, Glob,<br/>WebSearch, WebFetch| FS[(File System)]
+    Tools -->|Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch| FS[(File System)]
 
     Engine --> Subagents
     Engine --> Teams
@@ -269,12 +269,12 @@ sequenceDiagram
     CC->>FS: Read project files (settings, routes, models)
     CC->>API: Send context + prompt for reasoning
     API-->>CC: Plan: modify 3 files, install dependency
-    CC->>Dev: "I'll modify auth.py, routes.py, add requirements. OK?"
+    CC->>Dev: I'll modify auth.py, routes.py, add requirements. OK?
     Dev->>CC: Approve
     CC->>FS: Write auth.py, edit routes.py
     CC->>FS: Bash: pip install PyJWT
     CC->>FS: Bash: pytest
-    CC->>Dev: "All tests pass. Changes committed."
+    CC->>Dev: All tests pass. Changes committed.
 ```
 
 [↑ Top of section](#2-installation--environment-setup) | [↑ Table of Contents](#table-of-contents)
@@ -1626,7 +1626,7 @@ Hooks provide **deterministic automation** that fires on lifecycle events. They 
 graph TB
     A[SessionStart] --> B[User submits prompt]
     B --> C[UserPromptSubmit Hook]
-    C --> D[Claude reasons & selects tool]
+    C --> D[Claude reasons and selects tool]
     D --> E[PreToolUse Hook]
     E -->|Allow| F[Tool executes]
     E -->|Deny| G[Tool blocked]
@@ -2460,7 +2460,7 @@ graph TD
     H --> I[You Start Working]
     I --> J[Conversation History Grows]
     J --> K{Context Getting Full?}
-    K -->|Yes| L[/compact or /clear]
+    K -->|Yes| L["/compact or /clear"]
     K -->|No| I
     L --> I
 ```
@@ -2608,10 +2608,10 @@ graph TD
     D -->|~60%| E[Proactive /compact]
     D -->|Not yet| C
     E --> C
-    D -->|New task entirely| F[/clear]
+    D -->|New task entirely| F["/clear"]
     F --> B
     C --> G{Made a mistake?}
-    G -->|Yes| H[/rewind or Esc-Esc]
+    G -->|Yes| H["/rewind or Esc-Esc"]
     H --> C
     C --> I[End Session]
     I --> J[Generate Handoff Brief]
