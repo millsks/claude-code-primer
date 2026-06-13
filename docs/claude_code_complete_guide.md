@@ -1652,10 +1652,12 @@ Three substitution patterns are available (full reference in §7):
 | Pattern | What It Gives You | Example |
 |---|---|---|
 | `$ARGUMENTS` | Everything after the command name | `/fix-issue 247` → `$ARGUMENTS` = `247` |
-| `$0`, `$1`, `$2` | Individual arguments by position (zero-based — unlike shell, `$0` is the first argument, not the script name) | `/deploy staging eu-west` → `$0` = `staging`, `$1` = `eu-west` |
+| `$0`, `$1`, `$2` | Individual arguments by position | `/deploy staging eu-west` → `$0` = `staging`, `$1` = `eu-west` |
 | `$name` | Named argument declared in frontmatter | `arguments: [env, region]` → `$env`, `$region` |
 
 Wrap multi-word arguments in quotes: `/skill "my component" json` makes `$0` = `my component`.
+
+> **Note:** Unlike shell scripts where `$0` is the script name, skill positional arguments are zero-based — `$0` is the first argument, `$1` the second, and so on.
 
 **Choosing between patterns:**
 
