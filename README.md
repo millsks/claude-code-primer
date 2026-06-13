@@ -60,14 +60,6 @@ A complete implementation of a 4-agent development team with persistent memory, 
 
 Developers who want to move beyond ad-hoc prompting and build real, repeatable workflows with Claude Code. The guide assumes programming familiarity (Python examples throughout) but no prior experience with Claude Code or agent frameworks.
 
-## Formats
-
-The guide is available in three formats under [docs/](docs/):
-
-- [claude_code_complete_guide.md](docs/claude_code_complete_guide.md) — Markdown (read in-browser or locally)
-- [claude_code_complete_guide.pdf](docs/claude_code_complete_guide.pdf) — PDF
-- [claude_code_complete_guide.docx](docs/claude_code_complete_guide.docx) — Word document
-
 ## License
 
 [MIT](LICENSE)
