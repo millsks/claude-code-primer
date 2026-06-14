@@ -2063,6 +2063,20 @@ Hooks are defined in your settings.json:
 >
 > The first is a suggestion. The second is a wall.
 
+### The Boundary Hooks Cannot Cross
+
+Hooks operate at the **tool call boundary** — they inspect what Claude submits as input to a tool, not what happens inside whatever gets executed. This is an important limitation to understand before relying on them for safety.
+
+A `PreToolUse` hook matching `rm -rf` will block Claude from directly running `Bash("rm -rf /some/path")`. It will **not** block:
+
+- A script Claude runs that internally calls `rm -rf` — the hook sees `./deploy.sh`, not what the script does
+- A Python script using `shutil.rmtree()` — there is no `rm -rf` string to match
+- Any shell command spawned by a subprocess of the process Claude launched
+
+The hook sees only the string Claude handed to the Bash tool. Once that process is running, everything it spawns is invisible to the hook system.
+
+For hard OS-level protection that applies regardless of how a destructive operation is invoked, use Claude Code's sandbox mode (`claude --sandbox` or the `/sandbox` toggle). Sandboxing uses platform isolation — macOS sandbox profiles, Linux namespaces — to restrict what any child process can do at the kernel level. Hooks and sandboxing are complementary: hooks handle Claude's direct actions, sandboxing handles everything below.
+
 [↑ Top of section](#9-the-hook-system-deterministic-automation) | [↑ Table of Contents](#table-of-contents)
 
 ---
