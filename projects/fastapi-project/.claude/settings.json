@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pytest*)",
+      "Bash(ruff*)"
+    ],
+    "deny": [
+      "Bash(rm -rf*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json,subprocess; d=json.load(sys.stdin); p=d.get('tool_input',{}).get('file_path',''); subprocess.run(['ruff','format',p]) if p.endswith('.py') else None\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json; d=json.load(sys.stdin); cmd=d.get('tool_input',{}).get('command',''); print(json.dumps({'decision':'block','reason':'DROP TABLE is forbidden - use Alembic migrations for schema changes (alembic/versions/ is off-limits for direct edits).'})) if 'DROP TABLE' in cmd.upper() else None\""
+          }
+        ]
+      }
+    ]
+  }
+}
