@@ -1393,6 +1393,8 @@ Claude replaces `$ARGUMENTS` with `247` before reading the instructions.
 
 #### The SKILL.md Frontmatter Reference
 
+> **Source:** [Skills Guide](https://code.claude.com/docs/en/skills.md) — official Claude Code documentation.
+
 The YAML frontmatter (between `---` markers) configures the skill's behavior. All fields are optional unless noted.
 
 Fields marked **Official** are documented in Anthropic's published reference. Fields marked **Extension** are runtime-supported Claude Code extensions tracked in community changelogs; they work in practice but are not in the formal Anthropic spec, so some validators and older versions may flag them as unrecognized.
