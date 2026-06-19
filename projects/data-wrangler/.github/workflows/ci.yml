@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  unit:
+    name: Unit Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          activate-environment: data-wrangler
+          environment-file: environment.yml
+          python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
+
+      - name: Install package
+        shell: bash -el {0}
+        run: pip install -e . --no-deps
+
+      - name: Unit tests
+        shell: bash -el {0}
+        run: pytest tests/unit/
+
+  full:
+    name: Full CI (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          activate-environment: data-wrangler
+          environment-file: environment.yml
+          python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
+
+      - name: Install package
+        shell: bash -el {0}
+        run: pip install -e . --no-deps
+
+      - name: Pre-commit checks
+        shell: bash -el {0}
+        run: pre-commit run --all-files
+
+      - name: Build
+        shell: bash -el {0}
+        run: python -m build
+
+      - name: Type check
+        shell: bash -el {0}
+        run: mypy src/
+
+      - name: Lint
+        shell: bash -el {0}
+        run: ruff check .
+
+      - name: Full test suite with coverage
+        shell: bash -el {0}
+        run: pytest tests/ --cov=src --cov-report=term-missing --cov-fail-under=90
