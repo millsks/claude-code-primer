@@ -1393,23 +1393,32 @@ Claude replaces `$ARGUMENTS` with `247` before reading the instructions.
 
 #### The SKILL.md Frontmatter Reference
 
-The YAML frontmatter (between `---` markers) configures the skill's behavior. All fields are optional.
+> **Source:** [Skills Guide](https://code.claude.com/docs/en/skills.md) — official Claude Code documentation.
 
-| Field | Type | What It Controls |
-|---|---|---|
-| `description` | String | What the skill does and when to use it. Claude uses this to decide when to auto-suggest the skill. Combined with `when_to_use`, capped at 1,536 characters. |
-| `when_to_use` | String | Additional trigger phrases and example requests. Appended to `description` in skill listings. |
-| `argument-hint` | String | Hint shown during autocomplete, e.g. `[issue-number]` or `[filename] [format]` |
-| `arguments` | List or String | Named positional arguments for `$name` substitution, e.g. `[component, from, to]` |
-| `disable-model-invocation` | Boolean | Set `true` to prevent Claude auto-loading the skill — you must invoke it manually. Use for skills with side effects (deploy, send message, commit). |
-| `user-invocable` | Boolean | Set `false` to hide from the `/` menu — Claude loads it as background context but users cannot invoke it directly. |
-| `allowed-tools` | String or List | Tools Claude can use without a permission prompt while this skill is active. |
-| `disallowed-tools` | String or List | Tools removed from Claude's available set while this skill is active. Cleared after the next message. |
-| `model` | String | Model to use when the skill is active. Applies for that turn only. |
-| `effort` | String | Effort level (`low`, `medium`, `high`, `xhigh`, `max`) when the skill is active. |
-| `context` | String | Set to `fork` to run the skill in an isolated subagent context. |
-| `agent` | String | Subagent type when `context: fork`. Built-ins: `Explore`, `Plan`, `general-purpose`; or a custom agent from `.claude/agents/`. |
-| `paths` | List or String | Glob patterns — skill only auto-activates when Claude is working in files that match. |
+The YAML frontmatter (between `---` markers) configures the skill's behavior. All fields are optional unless noted.
+
+Fields marked **Official** are documented in Anthropic's published reference. Fields marked **Extension** are runtime-supported Claude Code extensions tracked in community changelogs; they work in practice but are not in the formal Anthropic spec, so some validators and older versions may flag them as unrecognized.
+
+| Field | Type | Status | What It Controls |
+|---|---|---|---|
+| `name` | String | Official | Display name shown in skill listings and autocomplete. Defaults to the directory name. Recommended for every SKILL.md. |
+| `description` | String | Official | What the skill does and when to use it. Claude uses this to decide when to auto-suggest the skill. Combined with `when_to_use`, capped at 1,536 characters. |
+| `when_to_use` | String | Extension | Additional trigger phrases and example requests. Appended to `description` in skill listings. |
+| `argument-hint` | String | Official | Hint shown during autocomplete, e.g. `[issue-number]` or `[filename] [format]`. Display-only — does not affect runtime argument binding. |
+| `arguments` | String or List | Extension | Named positional arguments for `$name` substitution, e.g. `arguments: env region` or `arguments: [env, region]`. Maps names to positions in order. Note: some validators flag this field because it is not in Anthropic's formal spec. |
+| `disable-model-invocation` | Boolean | Official | Set `true` to prevent Claude from programmatically invoking the skill via the SlashCommand tool. The skill can still be invoked manually by the user. Use for skills with side effects (deploy, send message, commit). |
+| `user-invocable` | Boolean | Extension | Set `false` to hide from the `/` menu — Claude loads it as background context but users cannot invoke it directly. |
+| `allowed-tools` | String or List | Official | Tools Claude can use without a permission prompt while this skill is active. |
+| `disallowed-tools` | String or List | Extension | Tools removed from Claude's available set while this skill is active. Cleared after the next message. |
+| `model` | String | Official | Model to use when the skill is active. Applies for that turn only. Accepted values: `haiku`, `sonnet`, `opus`. |
+| `effort` | String | Extension | Effort level (`low`, `medium`, `high`, `xhigh`, `max`) when the skill is active. |
+| `context` | String | Extension | Set to `fork` to run the skill in an isolated subagent context. |
+| `agent` | String | Extension | Subagent type when `context: fork`. Built-ins: `Explore`, `Plan`, `general-purpose`; or a custom agent from `.claude/agents/`. |
+| `paths` | String or List | Extension | Glob patterns — skill only auto-activates when Claude is working in files that match. |
+| `hooks` | Object | Extension | Lifecycle hooks scoped to this skill. Same format as session-level hooks. |
+| `shell` | String | Extension | Shell used for `` !`command` `` blocks. Values: `bash` (default) or `powershell` (requires `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`). |
+
+> **Fields to avoid:** `tags`, `category`, `keywords`, `usage`, and `args` are silently ignored by the Claude Code runtime. Remove them to prevent confusion — they have no effect.
 
 #### Passing Arguments
 
@@ -1418,10 +1427,10 @@ Three substitution patterns are available:
 | Pattern | Meaning | Example |
 |---|---|---|
 | `$ARGUMENTS` | All text after the command name | `/deploy staging eu-west` → `staging eu-west` |
-| `$0`, `$1`, `$2` | Specific argument by position (zero-based) | `$0` = `staging`, `$1` = `eu-west` |
+| `$1`, `$2`, `$3` | Specific argument by position (1-based) | `$1` = `staging`, `$2` = `eu-west` |
 | `$name` | Named argument declared in `arguments` frontmatter | `arguments: [env, region]` → `$env`, `$region` |
 
-Wrap multi-word arguments in quotes: `/skill "hello world" second` makes `$0` = `hello world`.
+Wrap multi-word arguments in quotes: `/skill "hello world" second` makes `$1` = `hello world`.
 
 **Named arguments example:**
 
@@ -1808,16 +1817,16 @@ Three substitution patterns are available (full reference in §7):
 | Pattern | What It Gives You | Example |
 |---|---|---|
 | `$ARGUMENTS` | Everything after the command name | `/fix-issue 247` → `$ARGUMENTS` = `247` |
-| `$0`, `$1`, `$2` | Individual arguments by position | `/deploy staging eu-west` → `$0` = `staging`, `$1` = `eu-west` |
+| `$1`, `$2`, `$3` | Individual arguments by position (1-based) | `/deploy staging eu-west` → `$1` = `staging`, `$2` = `eu-west` |
 | `$name` | Named argument declared in frontmatter | `arguments: [env, region]` → `$env`, `$region` |
 
-Wrap multi-word arguments in quotes: `/skill "my component" json` makes `$0` = `my component`.
+Wrap multi-word arguments in quotes: `/skill "my component" json` makes `$1` = `my component`.
 
-> **Note:** Unlike shell scripts where `$0` is the script name, skill positional arguments are zero-based — `$0` is the first argument, `$1` the second, and so on.
+> **Note:** Positional arguments follow 1-based indexing — `$1` is the first argument, `$2` the second, and so on. This matches standard shell convention where `$0` is the command name.
 
 **Choosing between patterns:**
 
-Use `$ARGUMENTS` for simple single-argument skills where you just need the whole string. Use positional `$0`/`$1` when you need exactly two or three ordered values and the ordering is obvious from context. Use named arguments when there are multiple parameters and the names help Claude understand what each one means.
+Use `$ARGUMENTS` for simple single-argument skills where you just need the whole string. Use positional `$1`/`$2` when you need exactly two or three ordered values and the ordering is obvious from context. Use named arguments when there are multiple parameters and the names help Claude understand what each one means.
 
 **Example with named arguments:**
 
