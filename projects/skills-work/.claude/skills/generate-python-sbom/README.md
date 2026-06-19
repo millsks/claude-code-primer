@@ -169,7 +169,7 @@ To generate for one environment only, pass `--env py312`.
 
 The skill scans `PROJECT_ROOT` (recursively) for all conda environment YAML files — `environment.yml`, `environment-*.yml`, `conda.yml`, and `conda-*.yml`. It generates one SBOM per file found.
 
-Unlike Pixi (which queries pre-existing installed environments), **conda SBOMs are generated from a freshly created temporary environment**: the skill runs `conda env create --file <yaml_path> --name sbom-temp-<random>`, queries the fully resolved and installed package list with `conda list --json`, generates the SBOM, then removes the temp environment with `conda env remove`. This gives a complete view of direct + transitive deps at their resolved conda-forge versions.
+Unlike Pixi (which queries pre-existing installed environments), **conda SBOMs are generated from a freshly created temporary environment**: the skill runs `conda env create --file <yaml_path> --prefix <TEMP_DIR>/conda-envs/<name>`, queries the fully resolved and installed package list with `conda list --prefix <prefix> --json`, generates the SBOM, then deletes the prefix directory. Using `--prefix` (not `--name`) keeps the environment entirely inside `TEMP_DIR` and never adds an entry to the user's conda environment registry. This gives a complete view of direct + transitive deps at their resolved conda-forge versions.
 
 **Important:** creating the temporary environment requires downloading packages from conda-forge. This can take several minutes depending on the number of packages and network speed. The environment is removed immediately after the SBOM is written.
 
@@ -319,11 +319,11 @@ This strategy works with any package manager and with multi-environment Pixi/con
 
 ### Strategy C — stdlib-only
 
-**When used:** Neither the CLI nor `cyclonedx-python-lib` is available after all install attempts.
+**When used:** Always for JSON output, regardless of what other tooling is available. For XML, used when `cyclonedx-python-lib` is not importable.
 
 Uses only Python's built-in `json`, `re`, `uuid`, and `datetime` modules to generate a valid CycloneDX 1.4 JSON (or minimal XML). No third-party dependency is required.
 
-This is the universal fallback — it always works as long as `python3` is available.
+Strategy C is the primary JSON path — not a last resort. The library's JSON serializer produces different key ordering, non-deterministic `bom-ref` values, and missing metadata fields compared to the canonical format the skill defines. Using Strategy C for all JSON output guarantees identical structure across every project and package manager.
 
 ---
 
@@ -498,7 +498,7 @@ Multi-env:  `/reports/my-api-sbom.default.json`, `/reports/my-api-sbom.py312.jso
 
 ## Validating the output
 
-The `cyclonedx-py` binary installed by `cyclonedx-bom` (v7.x) generates SBOMs but does not include a `validate` subcommand. Schema validation requires the separate `cyclonedx-cli` tool (a standalone Go binary from CycloneDX):
+The `cyclonedx-py` binary installed by `cyclonedx-bom` generates SBOMs but does not include a `validate` subcommand. Schema validation requires the separate `cyclonedx-cli` tool (a standalone Go binary from CycloneDX):
 
 ```bash
 # Install cyclonedx-cli (Go binary — not a Python package)
@@ -550,6 +550,20 @@ The skill could not find any of: `pixi.toml`, `pyproject.toml`, `requirements.tx
 
 - Confirm the path is correct: `ls /path/to/project`
 - If auto-detection was used (no `--path`), re-run with `--path <correct-dir>`
+
+### `conda env create` fails with "PackagesNotFoundError"
+
+Some packages listed in `environment.yml` under `dependencies:` are PyPI-only and do not exist on conda-forge under the same name. Common examples: `build` (conda-forge name: `python-build`), `setuptools-scm`, and various dev tools.
+
+When `--include-dev` is not set the skill automatically strips dev packages (those matching `pytest*`, `mypy`, `ruff`, `pre-commit`, `build`, `black`, `flake8`, `isort`, `coverage*`, `sphinx*`, `pandas-stubs`, `types-*`) from a temporary copy of the YAML before running `conda env create`. This avoids the error for the common case.
+
+If a **runtime** package is causing the error, the environment YAML needs to be fixed — either move the package to the `pip:` sub-section or use its correct conda-forge name.
+
+### `conda env create` fails or installs into the wrong directory when using `-e .`
+
+A relative pip path (`- -e .`) in the `pip:` section of `environment.yml` resolves relative to the working directory at the time `conda env create` runs, not relative to the YAML file. Because the skill runs `conda env create` with `--prefix` pointing inside `TEMP_DIR`, the working directory may not be `PROJECT_ROOT`.
+
+The skill rewrites any `- -e .` or `- -e <relative-path>` entries to absolute paths before creating the temporary environment. If generation fails with a pip install error mentioning the wrong path, confirm that `PROJECT_ROOT` was correctly detected.
 
 ### "Environment not installed" / package query fails
 
