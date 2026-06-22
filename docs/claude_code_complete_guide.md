@@ -2406,7 +2406,7 @@ D) Exactly 50%
 
 [↑ Table of Contents](#table-of-contents)
 
-This section introduces **MCP (Model Context Protocol)**, explains server configuration, and shows how to connect Claude Code to external systems and custom tools.
+This section introduces **MCP (Model Context Protocol)**, explains server configuration, and shows how to connect Claude Code to external systems and custom tools — including how to build your own MCP server with **FastMCP**.
 
 ### What Is MCP?
 
@@ -2506,22 +2506,144 @@ tools:
 3. Generate a report with root cause and fix recommendations
 ```
 
-### Building a Custom MCP Server
+### Building Custom MCP Servers with FastMCP
 
-You're not limited to pre-built servers. You can write your own MCP server to expose any data source or API to Claude Code. Here's a practical example — a custom MCP server that exposes your project's internal metrics dashboard:
+[FastMCP](https://github.com/jlowin/fastmcp) is the recommended way to build custom MCP servers in Python. It wraps the MCP protocol with a decorator-based API inspired by FastAPI: you define tools as plain Python functions, annotate them, and FastMCP handles tool registration, schema generation, and the stdio transport loop automatically.
+
+**Why FastMCP over raw stdio:**
+- No boilerplate — no `tools/list` dispatch, no JSON schema by hand, no stdin/stdout loop
+- Type hints become the tool's input schema automatically
+- Docstrings become the tool's description, which Claude reads to decide when to call it
+- Standard `asyncio` support for non-blocking I/O
+
+#### Installation
+
+```bash
+pip install fastmcp
+# or with pixi / conda-forge:
+pixi add --pypi fastmcp
+```
+
+#### Example: Project Metrics Server
+
+The same metrics server from the raw example, rewritten with FastMCP:
+
+```python
+# metrics_mcp_server.py
+"""
+FastMCP server exposing internal project metrics to Claude Code.
+Run with: python metrics_mcp_server.py
+Configure in .mcp.json as: {"command": "python", "args": ["metrics_mcp_server.py"]}
+"""
+
+import json
+import sqlite3
+from typing import Literal
+
+from fastmcp import FastMCP
+
+mcp = FastMCP("project-metrics")
+
+
+@mcp.tool()
+def get_build_status(limit: int = 10) -> str:
+    """Get the status of recent CI/CD builds.
+
+    Args:
+        limit: Maximum number of builds to return.
+    """
+    conn = sqlite3.connect("metrics.db")
+    rows = conn.execute(
+        "SELECT id, branch, status, duration, created_at FROM builds ORDER BY created_at DESC LIMIT ?",
+        (limit,),
+    ).fetchall()
+    conn.close()
+    return json.dumps(
+        [dict(zip(["id", "branch", "status", "duration", "created_at"], r)) for r in rows]
+    )
+
+
+@mcp.tool()
+def get_error_trends(days: int = 7) -> str:
+    """Get error rate trends over the past N days.
+
+    Args:
+        days: Number of days to look back.
+    """
+    # In production, query Sentry, Datadog, etc.
+    return json.dumps({"period": f"last_{days}_days", "trend": "decreasing", "current_rate": "0.3%"})
+
+
+@mcp.tool()
+def get_deployment_history(
+    environment: Literal["production", "staging", "development"] = "production",
+) -> str:
+    """Get recent deployment history with rollback info.
+
+    Args:
+        environment: Target environment to query.
+    """
+    return json.dumps(
+        {"environment": environment, "last_deploy": "2025-06-13T10:30:00Z", "status": "healthy"}
+    )
+
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+Register it in `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "project-metrics": {
+      "command": "python",
+      "args": ["metrics_mcp_server.py"]
+    }
+  }
+}
+```
+
+Now Claude can query your build status, error trends, and deployment history directly during development sessions — enabling context-aware decisions like "the error rate spiked after the last deploy; let me investigate the changes."
+
+#### Adding Resources and Prompts
+
+FastMCP also supports MCP **resources** (static or dynamic data Claude can read) and **prompts** (reusable prompt templates):
+
+```python
+from fastmcp import FastMCP
+from fastmcp.resources import FileResource
+
+mcp = FastMCP("extended-server")
+
+
+@mcp.resource("config://app")
+def get_app_config() -> str:
+    """Return the current application configuration."""
+    with open("config.yaml") as f:
+        return f.read()
+
+
+@mcp.prompt()
+def debug_build_failure(build_id: str) -> str:
+    """Generate a prompt for debugging a specific build failure."""
+    return f"Investigate build {build_id}: check the logs, identify the failing step, and suggest a fix."
+```
+
+#### Advanced: Raw stdio Implementation
+
+For situations where you cannot install third-party dependencies, need exact control over the MCP wire format, or are targeting a locked-down environment, you can implement the stdio transport by hand. This is significantly more verbose but has zero dependencies beyond the standard library:
 
 ```python
 # custom_mcp_server.py
 """
-Custom MCP server that exposes internal project metrics to Claude Code.
-Run with: python custom_mcp_server.py
-Configure in .mcp.json as: {"command": "python", "args": ["custom_mcp_server.py"]}
+Low-level MCP stdio server — use FastMCP instead unless you have a specific reason not to.
 """
 
 import json
 import sys
 import sqlite3
-from datetime import datetime, timedelta
 
 
 def handle_request(request: dict) -> dict:
@@ -2572,42 +2694,28 @@ def handle_request(request: dict) -> dict:
         args = request.get("params", {}).get("arguments", {})
 
         if tool_name == "get_build_status":
-            # Query your CI/CD system
-            return {"content": [{"type": "text", "text": query_builds(args)}]}
+            limit = args.get("limit", 10)
+            conn = sqlite3.connect("metrics.db")
+            rows = conn.execute(
+                "SELECT * FROM builds ORDER BY created_at DESC LIMIT ?", (limit,)
+            ).fetchall()
+            conn.close()
+            result = json.dumps(
+                [dict(zip(["id", "branch", "status", "duration", "created_at"], r)) for r in rows]
+            )
+            return {"content": [{"type": "text", "text": result}]}
         elif tool_name == "get_error_trends":
-            return {"content": [{"type": "text", "text": query_errors(args)}]}
+            days = args.get("days", 7)
+            result = json.dumps({"period": f"last_{days}_days", "trend": "decreasing", "current_rate": "0.3%"})
+            return {"content": [{"type": "text", "text": result}]}
         elif tool_name == "get_deployment_history":
-            return {"content": [{"type": "text", "text": query_deploys(args)}]}
+            env = args.get("environment", "production")
+            result = json.dumps({"environment": env, "last_deploy": "2025-06-13T10:30:00Z", "status": "healthy"})
+            return {"content": [{"type": "text", "text": result}]}
 
     return {"error": f"Unknown method: {method}"}
 
 
-def query_builds(args: dict) -> str:
-    """Query recent CI/CD build statuses."""
-    # In production, this would query Jenkins, GitHub Actions, etc.
-    limit = args.get("limit", 10)
-    conn = sqlite3.connect("metrics.db")
-    rows = conn.execute(
-        "SELECT * FROM builds ORDER BY created_at DESC LIMIT ?", (limit,)
-    ).fetchall()
-    conn.close()
-    return json.dumps([dict(zip(["id", "branch", "status", "duration", "created_at"], r)) for r in rows])
-
-
-def query_errors(args: dict) -> str:
-    """Query error rate trends."""
-    days = args.get("days", 7)
-    # In production, query Sentry, Datadog, etc.
-    return json.dumps({"period": f"last_{days}_days", "trend": "decreasing", "current_rate": "0.3%"})
-
-
-def query_deploys(args: dict) -> str:
-    """Query deployment history."""
-    env = args.get("environment", "production")
-    return json.dumps({"environment": env, "last_deploy": "2025-06-13T10:30:00Z", "status": "healthy"})
-
-
-# MCP stdio protocol loop
 if __name__ == "__main__":
     for line in sys.stdin:
         request = json.loads(line.strip())
@@ -2617,20 +2725,7 @@ if __name__ == "__main__":
         sys.stdout.flush()
 ```
 
-Register it in `.mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "project-metrics": {
-      "command": "python",
-      "args": ["custom_mcp_server.py"]
-    }
-  }
-}
-```
-
-Now Claude can query your build status, error trends, and deployment history directly during development sessions — enabling context-aware decisions like "the error rate spiked after the last deploy; let me investigate the changes."
+Use FastMCP unless you have a concrete reason to implement the protocol by hand.
 
 ### Best Practices
 
@@ -2645,7 +2740,8 @@ Now Claude can query your build status, error trends, and deployment history dir
 > - MCP gives Claude a typed tool interface to any external system — databases, APIs, CI/CD, observability platforms.
 > - Configure MCP per-project in `.mcp.json`, not globally, to avoid loading unused servers into every session's context.
 > - Claude decides whether to use an MCP tool based entirely on the tool's description string — write it as a precise capability statement.
-> - Build custom MCP servers for any data source your team queries regularly during development sessions.
+> - Use **FastMCP** to build custom MCP servers: decorate plain Python functions with `@mcp.tool()` and FastMCP handles schema generation and the stdio transport automatically.
+> - Only drop to the raw stdio implementation when you need zero third-party dependencies or exact wire-format control.
 > - Combine MCP with `PreToolUse` hooks to audit, rate-limit, or gate MCP tool calls.
 
 [↑ Top of section](#10-mcp-connecting-claude-to-external-systems) | [↑ Table of Contents](#table-of-contents)
