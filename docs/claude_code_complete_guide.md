@@ -4114,7 +4114,7 @@ claude --agent code-reviewer "review the changes in the last 3 commits"
 > **Key Takeaways**
 > - Subagents get their own full context window — the primary benefit is context isolation, not just parallelism.
 > - The parent agent only sees the subagent's final summary output, keeping the parent context clean.
-> - Use `git worktree` isolation when spawning subagents that will write files, to prevent merge conflicts.
+> - Use [`git worktree`](https://git-scm.com/docs/git-worktree) isolation when spawning subagents that will write files, to prevent merge conflicts.
 > - Delegation is most valuable for file-heavy scanning tasks (security audits, large refactors, test generation across many files).
 
 [↑ Top of section](#14-subagents-delegation--isolation) | [↑ Table of Contents](#table-of-contents)
