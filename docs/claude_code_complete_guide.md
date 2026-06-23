@@ -125,6 +125,12 @@ learning_outcomes:
   - [20. The Orchestration Engine](#20-the-orchestration-engine)
   - [21. Putting It All Together: Full Implementation](#21-putting-it-all-together-full-implementation)
   - [22. Running the System: Example Scenario](#22-running-the-system-example-scenario)
+- [Part VI — Secondary Capstone: Slack-Driven Multi-Agent Pipeline](#part-vi--secondary-capstone-slack-driven-multi-agent-pipeline)
+  - [23. Architecture: Slack as the Communication Layer](#23-architecture-slack-as-the-communication-layer)
+  - [24. Setup: Slack App and MCP Server](#24-setup-slack-app-and-mcp-server)
+  - [25. Agent Definitions with Slack MCP](#25-agent-definitions-with-slack-mcp)
+  - [26. The Orchestrator](#26-the-orchestrator)
+  - [27. Full Implementation: Slack Bot Entry Point](#27-full-implementation-slack-bot-entry-point)
 - [Appendix A: Claude Design — The Visual Frontier](#appendix-a-claude-design--the-visual-frontier)
 - [Appendix B: Quick Reference Card](#appendix-b-quick-reference-card)
 - [Appendix C: Quiz Answer Key](#appendix-c-quiz-answer-key)
@@ -172,6 +178,7 @@ By the end of this guide, you will be able to:
 - Master memory management, context optimization, and session continuity techniques
 - Design and implement multi-agent systems where specialized agents collaborate on complex projects
 - Build a complete capstone project: a 4-agent development team with persistent memory and distinct personalities
+- Build a secondary capstone that replaces in-process calls with Slack as the human-to-agent and agent-to-agent communication bus
 
 ### Architecture at a Glance
 
@@ -5558,6 +5565,704 @@ TOTAL                      93%
 > - A realistic scenario is the best validation step for a multi-agent design: it proves the orchestration pipeline is understandable, inspectable, and reproducible.
 
 [↑ Top of section](#22-running-the-system-example-scenario) | [↑ Table of Contents](#table-of-contents)
+
+---
+
+# Part VI — Secondary Capstone: Slack-Driven Multi-Agent Pipeline
+
+> **In this part, you will:**
+> - Replace in-process SDK calls with Slack as the agent communication bus
+> - Configure the Slack MCP server so agents read and write messages natively
+> - Build a Slack Bolt webhook that turns a human `@mention` into a full pipeline run
+> - Implement agent-to-agent handoffs through dedicated Slack channels
+
+## 23. Architecture: Slack as the Communication Layer
+
+[↑ Table of Contents](#table-of-contents)
+
+This section establishes **why Slack is a useful agent communication bus**, maps out the channel structure, and explains the core design decision that makes humans and agents interchangeable at any handoff point.
+
+### Why Slack as the Bus?
+
+The Part V capstone used file-based task handoffs and direct SDK calls. Replacing those with Slack gives you:
+
+| Property | File/SDK handoff | Slack bus |
+|----------|-----------------|-----------|
+| Visibility | Local filesystem only | Entire team can watch live |
+| Human intervention | Must pause the pipeline | Post in the thread at any time |
+| Persistence | Session lifetime | Permanent channel history |
+| Async | Blocking SDK calls | Agents can run hours apart |
+| Debugging | Read files, grep logs | Search Slack, inspect threads |
+
+### System Overview
+
+```
+Developer
+   │
+   │  @codebot Build a JWT auth endpoint
+   ▼
+#dev-requests  (Slack channel — human entry point)
+   │
+   │  Slack Bolt webhook fires
+   ▼
+Python Orchestrator
+   │
+   ├─ posts task ──────────────► #arch-queue
+   │                                  │
+   │                     Architect Agent reads channel,
+   │                     posts design to thread, replies [DONE]
+   │  ◄── design extracted ───────────┘
+   │
+   ├─ posts design ────────────► #code-queue
+   │                                  │
+   │                     Coder Agent reads thread,
+   │                     posts implementation, replies [DONE]
+   │  ◄── implementation extracted ───┘
+   │
+   ├─ posts implementation ────► #review-queue
+   │                                  │
+   │                     Reviewer Agent reads thread,
+   │                     posts review findings, replies [DONE]
+   │  ◄── review extracted ───────────┘
+   │
+   └─ posts summary ───────────► #dev-requests (original thread)
+```
+
+### Channel Structure
+
+| Channel | Purpose |
+|---------|---------|
+| `#dev-requests` | Human entry point; coordinator posts final summary here |
+| `#arch-queue` | Architect reads tasks here, posts designs in thread |
+| `#code-queue` | Coder reads designs here, posts implementations in thread |
+| `#review-queue` | Reviewer reads code here, posts review in thread |
+
+Each handoff lives in a thread under the coordinator's root post, so every stage traces back to a single parent message.
+
+### Core Design Decision
+
+Agents do not call each other directly. Each agent reads its input *from Slack* and writes its output *to Slack*. The orchestrator watches for a `[DONE]` completion sentinel before launching the next agent. This means:
+
+- Any agent can be replaced by a human without code changes
+- The pipeline is resumable: if the orchestrator restarts, it reads Slack history to find the last checkpoint
+- A team member can interject at any handoff point by posting in the relevant thread
+
+> **Key Takeaways**
+> - Slack channels replace in-process function calls as the coordination primitive.
+> - Humans and agents share the same bus — a team member posting in `#arch-queue` is indistinguishable from an agent posting there, which is the point.
+> - Thread-based handoffs create a permanent, searchable audit trail with zero extra infrastructure.
+
+[↑ Top of section](#23-architecture-slack-as-the-communication-layer) | [↑ Table of Contents](#table-of-contents)
+
+---
+
+## 24. Setup: Slack App and MCP Server
+
+[↑ Table of Contents](#table-of-contents)
+
+This section covers creating the Slack app, assigning the required OAuth scopes, installing the Slack MCP server, and wiring up environment variables.
+
+### Create the Slack App
+
+1. Go to **api.slack.com/apps** → **Create New App → From scratch**
+2. Name it `codebot` and select your workspace
+3. Under **OAuth & Permissions → Bot Token Scopes**, add:
+
+```
+channels:history    channels:read       channels:write
+chat:write          app_mentions:read   users:read
+```
+
+4. Under **Event Subscriptions**, enable **Socket Mode** and subscribe to the `app_mention` event
+5. Install the app to your workspace and copy:
+   - **Bot Token** (`xoxb-...`) — used by the SDK and the MCP server to post messages
+   - **App Token** (`xapp-...`) — used by Socket Mode to receive events
+
+Create four channels and invite `@codebot` to each:
+
+```
+#dev-requests   #arch-queue   #code-queue   #review-queue
+```
+
+### Install the Slack MCP Server
+
+```bash
+npm install -g @modelcontextprotocol/server-slack
+```
+
+Add it to `~/.claude/settings.json` so Claude Code sessions can use it interactively:
+
+```json
+{
+  "mcpServers": {
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
+        "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
+      }
+    }
+  }
+}
+```
+
+The MCP server exposes these tools to any agent that loads it:
+
+| Tool | Description |
+|------|-------------|
+| `slack_post_message` | Post a new message to a channel |
+| `slack_reply_to_thread` | Reply within an existing thread |
+| `slack_get_channel_history` | Fetch recent messages from a channel |
+| `slack_get_thread_replies` | Fetch all replies in a thread |
+| `slack_list_channels` | List channels the bot belongs to |
+
+### Environment Variables
+
+```bash
+export SLACK_BOT_TOKEN="xoxb-..."
+export SLACK_APP_TOKEN="xapp-..."
+export SLACK_TEAM_ID="T0123456789"   # found in workspace URL or api.slack.com
+export ANTHROPIC_API_KEY="sk-ant-..."
+```
+
+### Install Python Dependencies
+
+```bash
+pip install slack-bolt slack-sdk anthropic claude-agent-sdk
+```
+
+> **Key Takeaways**
+> - Socket Mode lets the bot receive events without a public webhook URL — ideal for local development and internal tools.
+> - The Slack MCP server is the bridge between Claude agents and Slack: agents call `slack_reply_to_thread` the same way they call `Write` or `Bash`.
+> - Keeping channel IDs in environment variables (not hardcoded) makes the system trivially portable to staging vs. production workspaces.
+
+[↑ Top of section](#24-setup-slack-app-and-mcp-server) | [↑ Table of Contents](#table-of-contents)
+
+---
+
+## 25. Agent Definitions with Slack MCP
+
+[↑ Table of Contents](#table-of-contents)
+
+This section defines the three specialist agents — Architect, Coder, and Reviewer — and the shared MCP configuration that gives each one access to Slack.
+
+### Shared MCP Configuration
+
+```python
+import os
+from claude_agent_sdk import query, ClaudeAgentOptions
+
+SLACK_MCP = {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-slack"],
+    "env": {
+        "SLACK_BOT_TOKEN": os.environ["SLACK_BOT_TOKEN"],
+        "SLACK_TEAM_ID": os.environ["SLACK_TEAM_ID"],
+    },
+}
+
+SLACK_TOOLS = [
+    "slack_post_message",
+    "slack_reply_to_thread",
+    "slack_get_thread_replies",
+    "slack_get_channel_history",
+]
+```
+
+### Architect Agent
+
+```python
+ARCHITECT_PROMPT = """You are a software architect communicating through Slack.
+
+When invoked you will receive:
+- TASK: the feature or bug to design
+- CHANNEL: the Slack channel ID for your queue (#arch-queue)
+- THREAD_TS: the timestamp of the coordinator's message in that channel
+
+Steps:
+1. Call slack_get_thread_replies to read the coordinator's message and any context
+2. Design a clear technical architecture: components, interfaces, data flow, edge cases
+3. Call slack_reply_to_thread to post your complete design to THREAD_TS in CHANNEL
+4. End your reply with [DONE] on its own line
+
+Keep the design concrete and actionable — the coder needs enough detail to implement
+without guessing. No padding."""
+```
+
+### Coder Agent
+
+```python
+CODER_PROMPT = """You are a senior software engineer communicating through Slack.
+
+When invoked you will receive:
+- DESIGN: the architecture document from the architect
+- CHANNEL: the Slack channel ID for your queue (#code-queue)
+- THREAD_TS: the timestamp of the coordinator's message in that channel
+
+Steps:
+1. Call slack_get_thread_replies to read the coordinator's handoff message
+2. Implement the design: write complete, working Python code with full type hints
+3. Call slack_reply_to_thread to post your implementation to THREAD_TS in CHANNEL
+4. End your reply with [DONE] on its own line
+
+Write production-quality code. No stubs, no TODOs, no placeholder comments."""
+```
+
+### Reviewer Agent
+
+```python
+REVIEWER_PROMPT = """You are a security-focused code reviewer communicating through Slack.
+
+When invoked you will receive:
+- CODE: the implementation from the coder
+- CHANNEL: the Slack channel ID for your queue (#review-queue)
+- THREAD_TS: the timestamp of the coordinator's message in that channel
+
+Steps:
+1. Call slack_get_thread_replies to read the coordinator's handoff message
+2. Review for: security vulnerabilities, logic errors, missing edge cases, test gaps
+3. Label each finding: CRITICAL / HIGH / MEDIUM / LOW
+4. Call slack_reply_to_thread to post your review to THREAD_TS in CHANNEL
+5. End your reply with [DONE] on its own line
+
+Be specific: function name, exact issue, suggested fix. No vague observations."""
+```
+
+### Agent Runner
+
+```python
+async def run_agent(prompt: str, system_prompt: str) -> str:
+    """Run a single agent with Slack MCP access and return its final text output."""
+    options = ClaudeAgentOptions(
+        model="claude-sonnet-4-6",
+        system_prompt=system_prompt,
+        mcp_servers=[SLACK_MCP],
+        allowed_tools=SLACK_TOOLS,
+        max_turns=10,
+    )
+    output_parts: list[str] = []
+    async for message in query(prompt=prompt, options=options):
+        if hasattr(message, "content"):
+            for block in message.content:
+                if hasattr(block, "text"):
+                    output_parts.append(block.text)
+    return "\n".join(output_parts)
+```
+
+> **Key Takeaways**
+> - All three agents share identical MCP and tool configuration — only their system prompts differ.
+> - The `[DONE]` sentinel is the simplest reliable completion protocol for a text bus; replace it with a structured JSON payload or a Slack reaction emoji if you need richer signaling.
+> - `max_turns=10` caps token spend if an agent gets stuck in a tool loop.
+
+[↑ Top of section](#25-agent-definitions-with-slack-mcp) | [↑ Table of Contents](#table-of-contents)
+
+---
+
+## 26. The Orchestrator
+
+[↑ Table of Contents](#table-of-contents)
+
+This section builds the Python orchestrator that posts handoff messages to each channel, launches agents, and polls Slack for completion before advancing to the next stage.
+
+### Posting and Polling Helpers
+
+```python
+import time
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
+slack_client = WebClient(token=os.environ["SLACK_BOT_TOKEN"])
+
+# Replace these with your real channel IDs from the Slack API or workspace settings
+CHANNELS = {
+    "dev-requests": "C0000000001",
+    "arch-queue":   "C0000000002",
+    "code-queue":   "C0000000003",
+    "review-queue": "C0000000004",
+}
+
+
+def post_to_channel(channel_id: str, text: str) -> str:
+    """Post a message and return its timestamp (used as thread_ts for replies)."""
+    response = slack_client.chat_postMessage(channel=channel_id, text=text)
+    return response["ts"]
+
+
+def wait_for_done(channel_id: str, thread_ts: str, timeout: int = 300) -> str:
+    """Poll thread replies until [DONE] appears; return the agent's text without the sentinel."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            result = slack_client.conversations_replies(
+                channel=channel_id, ts=thread_ts
+            )
+            for msg in result.get("messages", [])[1:]:  # skip parent
+                if "[DONE]" in msg.get("text", ""):
+                    return msg["text"].replace("[DONE]", "").strip()
+        except SlackApiError:
+            pass
+        time.sleep(5)
+    raise TimeoutError(
+        f"No [DONE] in {channel_id} thread {thread_ts} after {timeout}s"
+    )
+```
+
+### Pipeline Orchestrator
+
+```python
+async def run_pipeline(
+    task: str, origin_channel: str, origin_thread_ts: str
+) -> None:
+    """
+    Drive the full Architect → Coder → Reviewer pipeline through Slack.
+    Each stage posts to a dedicated channel; agents reply with [DONE] when finished.
+    """
+
+    # Stage 1: Architect
+    arch_ts = post_to_channel(
+        CHANNELS["arch-queue"],
+        f"*New task for Architect*\n\n{task}\n\nPlease design a solution and reply with [DONE].",
+    )
+    await run_agent(
+        prompt=(
+            f"TASK: {task}\n"
+            f"CHANNEL: {CHANNELS['arch-queue']}\n"
+            f"THREAD_TS: {arch_ts}\n\n"
+            "Read the task from the thread, post your architecture design as a reply, "
+            "and end with [DONE]."
+        ),
+        system_prompt=ARCHITECT_PROMPT,
+    )
+    design = wait_for_done(CHANNELS["arch-queue"], arch_ts)
+
+    # Stage 2: Coder
+    code_ts = post_to_channel(
+        CHANNELS["code-queue"],
+        f"*New task for Coder*\n\nImplement the design below and reply with [DONE].\n\n{design}",
+    )
+    await run_agent(
+        prompt=(
+            f"DESIGN: {design}\n"
+            f"CHANNEL: {CHANNELS['code-queue']}\n"
+            f"THREAD_TS: {code_ts}\n\n"
+            "Read the design from the thread, implement it, post your code as a reply, "
+            "and end with [DONE]."
+        ),
+        system_prompt=CODER_PROMPT,
+    )
+    implementation = wait_for_done(CHANNELS["code-queue"], code_ts)
+
+    # Stage 3: Reviewer
+    review_ts = post_to_channel(
+        CHANNELS["review-queue"],
+        f"*New task for Reviewer*\n\nReview the code below and reply with [DONE].\n\n{implementation}",
+    )
+    await run_agent(
+        prompt=(
+            f"CODE: {implementation}\n"
+            f"CHANNEL: {CHANNELS['review-queue']}\n"
+            f"THREAD_TS: {review_ts}\n\n"
+            "Read the code from the thread, review it for security and correctness, "
+            "post your findings as a reply, and end with [DONE]."
+        ),
+        system_prompt=REVIEWER_PROMPT,
+    )
+    review = wait_for_done(CHANNELS["review-queue"], review_ts)
+
+    # Final: post summary to the original human thread
+    summary = (
+        "*Pipeline complete*\n\n"
+        f"*Design* → <#{CHANNELS['arch-queue']}> (thread `{arch_ts}`)\n"
+        f"*Implementation* → <#{CHANNELS['code-queue']}> (thread `{code_ts}`)\n"
+        f"*Review* → <#{CHANNELS['review-queue']}> (thread `{review_ts}`)\n\n"
+        f"*Review highlights:*\n{review[:800]}"
+    )
+    slack_client.chat_postMessage(
+        channel=origin_channel,
+        thread_ts=origin_thread_ts,
+        text=summary,
+    )
+```
+
+> **Key Takeaways**
+> - `wait_for_done` is a simple 5-second polling loop — good enough for a tutorial; in production, replace it with a Slack event subscription that fires when the agent replies.
+> - The orchestrator extracts the agent's output from Slack and injects it into the next agent's prompt, so agents never need to call each other directly.
+> - Posting the design and implementation to the next channel (not just the thread) means a human can read `#code-queue` to see exactly what context the coder received.
+
+[↑ Top of section](#26-the-orchestrator) | [↑ Table of Contents](#table-of-contents)
+
+---
+
+## 27. Full Implementation: Slack Bot Entry Point
+
+[↑ Table of Contents](#table-of-contents)
+
+This section assembles the Slack Bolt bot that receives human mentions and fires the pipeline, then walks through a complete example scenario.
+
+### Slack Bolt Entry Point
+
+```python
+"""
+slack_agent_pipeline.py — Slack-driven multi-agent development pipeline.
+
+Human posts @codebot <task> in #dev-requests.
+The bot triggers a three-stage pipeline (Architect → Coder → Reviewer)
+where agents communicate through dedicated Slack channels via the Slack MCP server.
+
+Usage:
+    export SLACK_BOT_TOKEN="xoxb-..."
+    export SLACK_APP_TOKEN="xapp-..."
+    export SLACK_TEAM_ID="T0123456789"
+    export ANTHROPIC_API_KEY="sk-ant-..."
+    python slack_agent_pipeline.py
+"""
+
+import asyncio
+import os
+import time
+
+from claude_agent_sdk import ClaudeAgentOptions, query
+from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
+# ── Slack MCP server config ────────────────────────────────────────────────────
+
+SLACK_MCP = {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-slack"],
+    "env": {
+        "SLACK_BOT_TOKEN": os.environ["SLACK_BOT_TOKEN"],
+        "SLACK_TEAM_ID": os.environ["SLACK_TEAM_ID"],
+    },
+}
+
+SLACK_TOOLS = [
+    "slack_post_message",
+    "slack_reply_to_thread",
+    "slack_get_thread_replies",
+    "slack_get_channel_history",
+]
+
+# Replace with real channel IDs from your workspace
+CHANNELS = {
+    "dev-requests": "C0000000001",
+    "arch-queue":   "C0000000002",
+    "code-queue":   "C0000000003",
+    "review-queue": "C0000000004",
+}
+
+# ── Agent system prompts ───────────────────────────────────────────────────────
+
+ARCHITECT_PROMPT = """You are a software architect communicating through Slack.
+
+When invoked you will receive TASK, CHANNEL, and THREAD_TS.
+1. Call slack_get_thread_replies to read the coordinator's message
+2. Design a clear technical architecture: components, interfaces, data flow, edge cases
+3. Call slack_reply_to_thread to post your design to THREAD_TS in CHANNEL
+4. End your reply with [DONE] on its own line"""
+
+CODER_PROMPT = """You are a senior software engineer communicating through Slack.
+
+When invoked you will receive DESIGN, CHANNEL, and THREAD_TS.
+1. Call slack_get_thread_replies to read the coordinator's handoff message
+2. Implement the design with complete, working Python code and full type hints
+3. Call slack_reply_to_thread to post your implementation to THREAD_TS in CHANNEL
+4. End your reply with [DONE] on its own line"""
+
+REVIEWER_PROMPT = """You are a security-focused code reviewer communicating through Slack.
+
+When invoked you will receive CODE, CHANNEL, and THREAD_TS.
+1. Call slack_get_thread_replies to read the coordinator's handoff message
+2. Review for security vulnerabilities, logic errors, missing edge cases, test gaps
+3. Label findings CRITICAL / HIGH / MEDIUM / LOW with function name and fix suggestion
+4. Call slack_reply_to_thread to post your review to THREAD_TS in CHANNEL
+5. End your reply with [DONE] on its own line"""
+
+# ── Helpers ────────────────────────────────────────────────────────────────────
+
+slack_client = WebClient(token=os.environ["SLACK_BOT_TOKEN"])
+
+
+def post_to_channel(channel_id: str, text: str) -> str:
+    response = slack_client.chat_postMessage(channel=channel_id, text=text)
+    return response["ts"]
+
+
+def wait_for_done(channel_id: str, thread_ts: str, timeout: int = 300) -> str:
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            result = slack_client.conversations_replies(
+                channel=channel_id, ts=thread_ts
+            )
+            for msg in result.get("messages", [])[1:]:
+                if "[DONE]" in msg.get("text", ""):
+                    return msg["text"].replace("[DONE]", "").strip()
+        except SlackApiError:
+            pass
+        time.sleep(5)
+    raise TimeoutError(f"No [DONE] in {channel_id}/{thread_ts} after {timeout}s")
+
+
+async def run_agent(prompt: str, system_prompt: str) -> str:
+    options = ClaudeAgentOptions(
+        model="claude-sonnet-4-6",
+        system_prompt=system_prompt,
+        mcp_servers=[SLACK_MCP],
+        allowed_tools=SLACK_TOOLS,
+        max_turns=10,
+    )
+    parts: list[str] = []
+    async for message in query(prompt=prompt, options=options):
+        if hasattr(message, "content"):
+            for block in message.content:
+                if hasattr(block, "text"):
+                    parts.append(block.text)
+    return "\n".join(parts)
+
+
+# ── Pipeline ───────────────────────────────────────────────────────────────────
+
+async def run_pipeline(
+    task: str, origin_channel: str, origin_thread_ts: str
+) -> None:
+    arch_ts = post_to_channel(
+        CHANNELS["arch-queue"],
+        f"*New task for Architect*\n\n{task}\n\nPlease design a solution and reply [DONE].",
+    )
+    await run_agent(
+        prompt=f"TASK: {task}\nCHANNEL: {CHANNELS['arch-queue']}\nTHREAD_TS: {arch_ts}",
+        system_prompt=ARCHITECT_PROMPT,
+    )
+    design = wait_for_done(CHANNELS["arch-queue"], arch_ts)
+
+    code_ts = post_to_channel(
+        CHANNELS["code-queue"],
+        f"*New task for Coder*\n\nImplement the design below and reply [DONE].\n\n{design}",
+    )
+    await run_agent(
+        prompt=f"DESIGN: {design}\nCHANNEL: {CHANNELS['code-queue']}\nTHREAD_TS: {code_ts}",
+        system_prompt=CODER_PROMPT,
+    )
+    implementation = wait_for_done(CHANNELS["code-queue"], code_ts)
+
+    review_ts = post_to_channel(
+        CHANNELS["review-queue"],
+        f"*New task for Reviewer*\n\nReview the code below and reply [DONE].\n\n{implementation}",
+    )
+    await run_agent(
+        prompt=f"CODE: {implementation}\nCHANNEL: {CHANNELS['review-queue']}\nTHREAD_TS: {review_ts}",
+        system_prompt=REVIEWER_PROMPT,
+    )
+    review = wait_for_done(CHANNELS["review-queue"], review_ts)
+
+    slack_client.chat_postMessage(
+        channel=origin_channel,
+        thread_ts=origin_thread_ts,
+        text=(
+            "*Pipeline complete*\n\n"
+            f"*Design* → <#{CHANNELS['arch-queue']}> (thread `{arch_ts}`)\n"
+            f"*Implementation* → <#{CHANNELS['code-queue']}> (thread `{code_ts}`)\n"
+            f"*Review* → <#{CHANNELS['review-queue']}> (thread `{review_ts}`)\n\n"
+            f"*Review highlights:*\n{review[:800]}"
+        ),
+    )
+
+
+# ── Slack Bolt app ─────────────────────────────────────────────────────────────
+
+bolt_app = App(token=os.environ["SLACK_BOT_TOKEN"])
+
+
+@bolt_app.event("app_mention")
+def handle_mention(event: dict, say: object) -> None:
+    task = event["text"]
+    channel = event["channel"]
+    thread_ts = event.get("thread_ts") or event["ts"]
+
+    say(text="Received. Spinning up the agent pipeline...", thread_ts=thread_ts)
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(run_pipeline(task, channel, thread_ts))
+    finally:
+        loop.close()
+
+
+if __name__ == "__main__":
+    SocketModeHandler(bolt_app, os.environ["SLACK_APP_TOKEN"]).start()
+```
+
+### Running the System
+
+```bash
+python slack_agent_pipeline.py
+```
+
+Then in `#dev-requests`:
+
+```
+@codebot Build a JWT authentication endpoint for FastAPI.
+         Include token creation, validation middleware, and a /me route.
+```
+
+#### What You Will See
+
+**#dev-requests** (original thread):
+```
+@codebot: Received. Spinning up the agent pipeline...
+[~4 minutes later]
+@codebot: Pipeline complete
+
+Design    → #arch-queue (thread 1718000000.000100)
+Implementation → #code-queue (thread 1718000001.000200)
+Review    → #review-queue (thread 1718000002.000300)
+
+Review highlights:
+HIGH: create_access_token uses a hardcoded 'secret' — load from environment instead
+MEDIUM: /me route does not handle expired tokens — add 401 on JWTError
+LOW: Missing test for token expiry boundary condition
+```
+
+**#arch-queue** (coordinator's post + architect's reply):
+```
+New task for Architect
+
+Build a JWT authentication endpoint for FastAPI...
+
+  └─ [Architect reply]
+     Components:
+     - POST /auth/token — accepts username/password, returns JWT
+     - GET /me — validates bearer token, returns user profile
+     - middleware: verify_token dependency injected per route
+     ...
+     [DONE]
+```
+
+**#code-queue** and **#review-queue** follow the same thread pattern.
+
+### Concepts Demonstrated
+
+| Concept | Where it appears |
+|---------|----------------|
+| Human → agent via Slack | `@codebot` mention fires Bolt event |
+| Agent → agent via Slack | Coordinator posts design to `#code-queue`; coder reads and replies |
+| Human-in-the-loop | Team member can reply in `#arch-queue` thread to redirect the architect |
+| Auditability | Every decision is a Slack message — searchable, permanent, shareable |
+| Resumability | Orchestrator can re-read threads to find the last `[DONE]` after a restart |
+
+> **Key Takeaways**
+> - The `[DONE]` sentinel and `wait_for_done` polling are the minimal coordination protocol for a text bus; upgrade to Slack event subscriptions for production to eliminate the polling loop.
+> - Because every handoff is a Slack message, a human can step in at any stage — post a correction in `#arch-queue` and the coder's context includes it automatically.
+> - Channel IDs are the only environment-specific configuration: the same code runs against a staging workspace (`#dev-requests-staging`) or a production workspace with no code changes.
+
+[↑ Top of section](#27-full-implementation-slack-bot-entry-point) | [↑ Table of Contents](#table-of-contents)
 
 ---
 
