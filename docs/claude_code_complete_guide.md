@@ -4066,7 +4066,7 @@ Subagents are **isolated Claude instances** spawned by a parent session to perfo
 
 ### Defining Custom Agents
 
-Create agent definition files in `.claude/agents/` (project) or `~/.claude/agents/` (user):
+Create agent definition files in `.claude/agents/` (project) or `~/.claude/agents/` (user). Each file is a Markdown file named `<agent-name>.md` — the filename (without `.md`) must match the `name:` field in the YAML front-matter. Claude Code discovers agents by scanning those directories for `.md` files and reading each file's front-matter.
 
 ```markdown
 ---
@@ -4093,6 +4093,8 @@ You are a senior code reviewer. Analyze changes for:
 
 Return a structured review with severity ratings.
 ```
+
+The file above would be saved as `.claude/agents/code-reviewer.md`. The `name:` field and the filename stem must be identical; mismatches cause the agent to be undetectable or to load under the wrong name.
 
 ### Using Subagents from CLI
 
