@@ -450,7 +450,11 @@ Once inside an interactive session, these slash commands control the session:
 | `Esc` `Esc` | Rewind to previous checkpoint |
 | `Alt+T` | Toggle extended thinking |
 | `Ctrl+R` | Search prompt history (reuse or edit previous prompts) |
-| `Shift+Down` | Navigate between Agent Team members |
+| `↑` / `↓` | Select a teammate in the agent panel (in-process mode) |
+| `Enter` | Open the selected teammate's transcript and message it |
+| `x` | Stop the selected teammate |
+| `Esc` | Interrupt the selected teammate's current turn |
+| `Ctrl+T` | Toggle the shared task list |
 
 ### Controlling Cost & Scope
 
@@ -4238,8 +4242,8 @@ Config: ~/.claude/teams/{team-name}/config.json
 
 ### Display Modes
 
-1. **In-process mode** (default): Navigate teammates with `Shift+Down`
-2. **Split panes**: Requires tmux or iTerm2
+1. **In-process mode** (default): Use `↑`/`↓` in the agent panel to select a teammate, `Enter` to open their transcript and message them, `Esc` to interrupt their current turn, `x` to stop them, `Ctrl+T` to toggle the task list.
+2. **Split panes**: Requires tmux or iTerm2 (with the `it2` CLI and Python API enabled). Set `"teammateMode": "auto"` or `"tmux"` in `~/.claude/settings.json`, or pass `--teammate-mode auto` per session.
 
 ### Task Management
 
@@ -4257,10 +4261,13 @@ Config: ~/.claude/teams/{team-name}/config.json
 
 ### Limitations
 
-- No session resumption for in-process teams
-- Lead cannot change (fixed for team lifetime)
-- No nested teams
-- Experimental — may have coordination issues
+- **No session resumption**: `/resume` and `/rewind` do not restore in-process teammates; the lead may try to message teammates that no longer exist after resuming
+- **Task status lag**: teammates sometimes fail to mark tasks completed, blocking dependent tasks; nudge the teammate or update status manually
+- **Slow shutdown**: teammates finish their current request or tool call before exiting
+- **One team per session**: a session has exactly one team; you cannot create additional named teams or share a team across sessions
+- **No nested teams**: only the lead can spawn teammates; teammates cannot spawn their own teammates
+- **Lead is fixed**: the main session is the lead for its lifetime; leadership cannot be transferred
+- **Split panes require tmux or iTerm2**: not supported in VS Code's integrated terminal, Windows Terminal, or Ghostty
 
 > **Key Takeaways**
 > - Agent Teams enable peer-to-peer communication between agents; subagents only communicate upward to their parent.
