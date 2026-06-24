@@ -1,0 +1,215 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:9b8f173b-04e4-45b8-bf04-cd40a42cc441",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-06-19T20:15:03.147737+00:00",
+    "tools": [
+      {
+        "vendor": "generate-python-sbom",
+        "name": "generate-python-sbom",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "bom-ref": "pkg:pypi/django-demo@0.0.0",
+      "name": "django-demo",
+      "version": "0.0.0",
+      "purl": "pkg:pypi/django-demo@0.0.0",
+      "properties": [
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/asgiref@3.11.1",
+      "name": "asgiref",
+      "version": "3.11.1",
+      "purl": "pkg:pypi/asgiref@3.11.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/django@5.2.15",
+      "name": "Django",
+      "version": "5.2.15",
+      "purl": "pkg:pypi/django@5.2.15",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/django-filter@25.2",
+      "name": "django-filter",
+      "version": "25.2",
+      "purl": "pkg:pypi/django-filter@25.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/djangorestframework@3.17.1",
+      "name": "djangorestframework",
+      "version": "3.17.1",
+      "purl": "pkg:pypi/djangorestframework@3.17.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/markdown@3.10.2",
+      "name": "Markdown",
+      "version": "3.10.2",
+      "purl": "pkg:pypi/markdown@3.10.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pip@24.0",
+      "name": "pip",
+      "version": "24.0",
+      "purl": "pkg:pypi/pip@24.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/python-decouple@3.8",
+      "name": "python-decouple",
+      "version": "3.8",
+      "purl": "pkg:pypi/python-decouple@3.8",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/sqlparse@0.5.5",
+      "name": "sqlparse",
+      "version": "0.5.5",
+      "purl": "pkg:pypi/sqlparse@0.5.5",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "pip"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "default"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:pypi/django-demo@0.0.0",
+      "dependsOn": [
+        "pkg:pypi/django@5.2.15",
+        "pkg:pypi/django-filter@25.2",
+        "pkg:pypi/djangorestframework@3.17.1",
+        "pkg:pypi/markdown@3.10.2",
+        "pkg:pypi/python-decouple@3.8"
+      ]
+    }
+  ]
+}
