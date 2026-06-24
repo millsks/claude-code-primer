@@ -1,0 +1,2211 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:c5931e60-7a1f-4db3-bb70-da97128f9bac",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-06-19T20:08:30.697020+00:00",
+    "tools": [
+      {
+        "vendor": "generate-python-sbom",
+        "name": "generate-python-sbom",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "bom-ref": "pkg:pypi/datawrangler@0.1.0",
+      "name": "datawrangler",
+      "version": "0.1.0",
+      "purl": "pkg:pypi/datawrangler@0.1.0",
+      "properties": [
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/-openmp-mutex@4.5",
+      "name": "_openmp_mutex",
+      "version": "4.5",
+      "purl": "pkg:conda/conda-forge/-openmp-mutex@4.5",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-auth@0.10.3",
+      "name": "aws-c-auth",
+      "version": "0.10.3",
+      "purl": "pkg:conda/conda-forge/aws-c-auth@0.10.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-cal@0.9.14",
+      "name": "aws-c-cal",
+      "version": "0.9.14",
+      "purl": "pkg:conda/conda-forge/aws-c-cal@0.9.14",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-common@0.14.0",
+      "name": "aws-c-common",
+      "version": "0.14.0",
+      "purl": "pkg:conda/conda-forge/aws-c-common@0.14.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-compression@0.3.2",
+      "name": "aws-c-compression",
+      "version": "0.3.2",
+      "purl": "pkg:conda/conda-forge/aws-c-compression@0.3.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-event-stream@0.7.1",
+      "name": "aws-c-event-stream",
+      "version": "0.7.1",
+      "purl": "pkg:conda/conda-forge/aws-c-event-stream@0.7.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-http@0.11.0",
+      "name": "aws-c-http",
+      "version": "0.11.0",
+      "purl": "pkg:conda/conda-forge/aws-c-http@0.11.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-io@0.26.3",
+      "name": "aws-c-io",
+      "version": "0.26.3",
+      "purl": "pkg:conda/conda-forge/aws-c-io@0.26.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-mqtt@0.15.2",
+      "name": "aws-c-mqtt",
+      "version": "0.15.2",
+      "purl": "pkg:conda/conda-forge/aws-c-mqtt@0.15.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-s3@0.12.5",
+      "name": "aws-c-s3",
+      "version": "0.12.5",
+      "purl": "pkg:conda/conda-forge/aws-c-s3@0.12.5",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-c-sdkutils@0.2.4",
+      "name": "aws-c-sdkutils",
+      "version": "0.2.4",
+      "purl": "pkg:conda/conda-forge/aws-c-sdkutils@0.2.4",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-checksums@0.2.10",
+      "name": "aws-checksums",
+      "version": "0.2.10",
+      "purl": "pkg:conda/conda-forge/aws-checksums@0.2.10",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-crt-cpp@0.40.0",
+      "name": "aws-crt-cpp",
+      "version": "0.40.0",
+      "purl": "pkg:conda/conda-forge/aws-crt-cpp@0.40.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/aws-sdk-cpp@1.11.747",
+      "name": "aws-sdk-cpp",
+      "version": "1.11.747",
+      "purl": "pkg:conda/conda-forge/aws-sdk-cpp@1.11.747",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/azure-core-cpp@1.16.3",
+      "name": "azure-core-cpp",
+      "version": "1.16.3",
+      "purl": "pkg:conda/conda-forge/azure-core-cpp@1.16.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/azure-identity-cpp@1.13.3",
+      "name": "azure-identity-cpp",
+      "version": "1.13.3",
+      "purl": "pkg:conda/conda-forge/azure-identity-cpp@1.13.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/azure-storage-blobs-cpp@12.18.0",
+      "name": "azure-storage-blobs-cpp",
+      "version": "12.18.0",
+      "purl": "pkg:conda/conda-forge/azure-storage-blobs-cpp@12.18.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/azure-storage-common-cpp@12.14.0",
+      "name": "azure-storage-common-cpp",
+      "version": "12.14.0",
+      "purl": "pkg:conda/conda-forge/azure-storage-common-cpp@12.14.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/azure-storage-files-datalake-cpp@12.16.0",
+      "name": "azure-storage-files-datalake-cpp",
+      "version": "12.16.0",
+      "purl": "pkg:conda/conda-forge/azure-storage-files-datalake-cpp@12.16.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/bzip2@1.0.8",
+      "name": "bzip2",
+      "version": "1.0.8",
+      "purl": "pkg:conda/conda-forge/bzip2@1.0.8",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/c-ares@1.34.6",
+      "name": "c-ares",
+      "version": "1.34.6",
+      "purl": "pkg:conda/conda-forge/c-ares@1.34.6",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/ca-certificates@2026.6.17",
+      "name": "ca-certificates",
+      "version": "2026.6.17",
+      "purl": "pkg:conda/conda-forge/ca-certificates@2026.6.17",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/et-xmlfile@2.0.0",
+      "name": "et_xmlfile",
+      "version": "2.0.0",
+      "purl": "pkg:conda/conda-forge/et-xmlfile@2.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/gflags@2.2.2",
+      "name": "gflags",
+      "version": "2.2.2",
+      "purl": "pkg:conda/conda-forge/gflags@2.2.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/glog@0.7.1",
+      "name": "glog",
+      "version": "0.7.1",
+      "purl": "pkg:conda/conda-forge/glog@0.7.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/icu@78.3",
+      "name": "icu",
+      "version": "78.3",
+      "purl": "pkg:conda/conda-forge/icu@78.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/keyutils@1.6.3",
+      "name": "keyutils",
+      "version": "1.6.3",
+      "purl": "pkg:conda/conda-forge/keyutils@1.6.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/krb5@1.22.2",
+      "name": "krb5",
+      "version": "1.22.2",
+      "purl": "pkg:conda/conda-forge/krb5@1.22.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/ld-impl-linux-64@2.45.1",
+      "name": "ld_impl_linux-64",
+      "version": "2.45.1",
+      "purl": "pkg:conda/conda-forge/ld-impl-linux-64@2.45.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libabseil@20260107.1",
+      "name": "libabseil",
+      "version": "20260107.1",
+      "purl": "pkg:conda/conda-forge/libabseil@20260107.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libarrow@24.0.0",
+      "name": "libarrow",
+      "version": "24.0.0",
+      "purl": "pkg:conda/conda-forge/libarrow@24.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libarrow-acero@24.0.0",
+      "name": "libarrow-acero",
+      "version": "24.0.0",
+      "purl": "pkg:conda/conda-forge/libarrow-acero@24.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libarrow-compute@24.0.0",
+      "name": "libarrow-compute",
+      "version": "24.0.0",
+      "purl": "pkg:conda/conda-forge/libarrow-compute@24.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libarrow-dataset@24.0.0",
+      "name": "libarrow-dataset",
+      "version": "24.0.0",
+      "purl": "pkg:conda/conda-forge/libarrow-dataset@24.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libarrow-substrait@24.0.0",
+      "name": "libarrow-substrait",
+      "version": "24.0.0",
+      "purl": "pkg:conda/conda-forge/libarrow-substrait@24.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libblas@3.11.0",
+      "name": "libblas",
+      "version": "3.11.0",
+      "purl": "pkg:conda/conda-forge/libblas@3.11.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libbrotlicommon@1.2.0",
+      "name": "libbrotlicommon",
+      "version": "1.2.0",
+      "purl": "pkg:conda/conda-forge/libbrotlicommon@1.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libbrotlidec@1.2.0",
+      "name": "libbrotlidec",
+      "version": "1.2.0",
+      "purl": "pkg:conda/conda-forge/libbrotlidec@1.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libbrotlienc@1.2.0",
+      "name": "libbrotlienc",
+      "version": "1.2.0",
+      "purl": "pkg:conda/conda-forge/libbrotlienc@1.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libcblas@3.11.0",
+      "name": "libcblas",
+      "version": "3.11.0",
+      "purl": "pkg:conda/conda-forge/libcblas@3.11.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libcrc32c@1.1.2",
+      "name": "libcrc32c",
+      "version": "1.1.2",
+      "purl": "pkg:conda/conda-forge/libcrc32c@1.1.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libcurl@8.20.0",
+      "name": "libcurl",
+      "version": "8.20.0",
+      "purl": "pkg:conda/conda-forge/libcurl@8.20.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libedit@3.1.20250104",
+      "name": "libedit",
+      "version": "3.1.20250104",
+      "purl": "pkg:conda/conda-forge/libedit@3.1.20250104",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libev@4.33",
+      "name": "libev",
+      "version": "4.33",
+      "purl": "pkg:conda/conda-forge/libev@4.33",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libevent@2.1.12",
+      "name": "libevent",
+      "version": "2.1.12",
+      "purl": "pkg:conda/conda-forge/libevent@2.1.12",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libexpat@2.8.1",
+      "name": "libexpat",
+      "version": "2.8.1",
+      "purl": "pkg:conda/conda-forge/libexpat@2.8.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libffi@3.5.2",
+      "name": "libffi",
+      "version": "3.5.2",
+      "purl": "pkg:conda/conda-forge/libffi@3.5.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libgcc@15.2.0",
+      "name": "libgcc",
+      "version": "15.2.0",
+      "purl": "pkg:conda/conda-forge/libgcc@15.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libgcc-ng@15.2.0",
+      "name": "libgcc-ng",
+      "version": "15.2.0",
+      "purl": "pkg:conda/conda-forge/libgcc-ng@15.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libgfortran@15.2.0",
+      "name": "libgfortran",
+      "version": "15.2.0",
+      "purl": "pkg:conda/conda-forge/libgfortran@15.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libgfortran5@15.2.0",
+      "name": "libgfortran5",
+      "version": "15.2.0",
+      "purl": "pkg:conda/conda-forge/libgfortran5@15.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libgomp@15.2.0",
+      "name": "libgomp",
+      "version": "15.2.0",
+      "purl": "pkg:conda/conda-forge/libgomp@15.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libgoogle-cloud@3.5.0",
+      "name": "libgoogle-cloud",
+      "version": "3.5.0",
+      "purl": "pkg:conda/conda-forge/libgoogle-cloud@3.5.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libgoogle-cloud-storage@3.5.0",
+      "name": "libgoogle-cloud-storage",
+      "version": "3.5.0",
+      "purl": "pkg:conda/conda-forge/libgoogle-cloud-storage@3.5.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libgrpc@1.78.1",
+      "name": "libgrpc",
+      "version": "1.78.1",
+      "purl": "pkg:conda/conda-forge/libgrpc@1.78.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libiconv@1.18",
+      "name": "libiconv",
+      "version": "1.18",
+      "purl": "pkg:conda/conda-forge/libiconv@1.18",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/liblapack@3.11.0",
+      "name": "liblapack",
+      "version": "3.11.0",
+      "purl": "pkg:conda/conda-forge/liblapack@3.11.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/liblzma@5.8.3",
+      "name": "liblzma",
+      "version": "5.8.3",
+      "purl": "pkg:conda/conda-forge/liblzma@5.8.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libmpdec@4.0.0",
+      "name": "libmpdec",
+      "version": "4.0.0",
+      "purl": "pkg:conda/conda-forge/libmpdec@4.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libnghttp2@1.68.1",
+      "name": "libnghttp2",
+      "version": "1.68.1",
+      "purl": "pkg:conda/conda-forge/libnghttp2@1.68.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libopenblas@0.3.33",
+      "name": "libopenblas",
+      "version": "0.3.33",
+      "purl": "pkg:conda/conda-forge/libopenblas@0.3.33",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libopentelemetry-cpp@1.27.0",
+      "name": "libopentelemetry-cpp",
+      "version": "1.27.0",
+      "purl": "pkg:conda/conda-forge/libopentelemetry-cpp@1.27.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libopentelemetry-cpp-headers@1.27.0",
+      "name": "libopentelemetry-cpp-headers",
+      "version": "1.27.0",
+      "purl": "pkg:conda/conda-forge/libopentelemetry-cpp-headers@1.27.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libparquet@24.0.0",
+      "name": "libparquet",
+      "version": "24.0.0",
+      "purl": "pkg:conda/conda-forge/libparquet@24.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libprotobuf@6.33.5",
+      "name": "libprotobuf",
+      "version": "6.33.5",
+      "purl": "pkg:conda/conda-forge/libprotobuf@6.33.5",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libre2-11@2025.11.05",
+      "name": "libre2-11",
+      "version": "2025.11.05",
+      "purl": "pkg:conda/conda-forge/libre2-11@2025.11.05",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libsqlite@3.53.2",
+      "name": "libsqlite",
+      "version": "3.53.2",
+      "purl": "pkg:conda/conda-forge/libsqlite@3.53.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libssh2@1.11.1",
+      "name": "libssh2",
+      "version": "1.11.1",
+      "purl": "pkg:conda/conda-forge/libssh2@1.11.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libstdcxx@15.2.0",
+      "name": "libstdcxx",
+      "version": "15.2.0",
+      "purl": "pkg:conda/conda-forge/libstdcxx@15.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libstdcxx-ng@15.2.0",
+      "name": "libstdcxx-ng",
+      "version": "15.2.0",
+      "purl": "pkg:conda/conda-forge/libstdcxx-ng@15.2.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libthrift@0.22.0",
+      "name": "libthrift",
+      "version": "0.22.0",
+      "purl": "pkg:conda/conda-forge/libthrift@0.22.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libutf8proc@2.11.3",
+      "name": "libutf8proc",
+      "version": "2.11.3",
+      "purl": "pkg:conda/conda-forge/libutf8proc@2.11.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libuuid@2.42.2",
+      "name": "libuuid",
+      "version": "2.42.2",
+      "purl": "pkg:conda/conda-forge/libuuid@2.42.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libxml2@2.15.3",
+      "name": "libxml2",
+      "version": "2.15.3",
+      "purl": "pkg:conda/conda-forge/libxml2@2.15.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libxml2-16@2.15.3",
+      "name": "libxml2-16",
+      "version": "2.15.3",
+      "purl": "pkg:conda/conda-forge/libxml2-16@2.15.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/libzlib@1.3.2",
+      "name": "libzlib",
+      "version": "1.3.2",
+      "purl": "pkg:conda/conda-forge/libzlib@1.3.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/lz4-c@1.10.0",
+      "name": "lz4-c",
+      "version": "1.10.0",
+      "purl": "pkg:conda/conda-forge/lz4-c@1.10.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/ncurses@6.6",
+      "name": "ncurses",
+      "version": "6.6",
+      "purl": "pkg:conda/conda-forge/ncurses@6.6",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/nlohmann-json@3.12.0",
+      "name": "nlohmann_json",
+      "version": "3.12.0",
+      "purl": "pkg:conda/conda-forge/nlohmann-json@3.12.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/numpy@2.4.6",
+      "name": "numpy",
+      "version": "2.4.6",
+      "purl": "pkg:conda/conda-forge/numpy@2.4.6",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/openpyxl@3.1.5",
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "purl": "pkg:conda/conda-forge/openpyxl@3.1.5",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/openssl@3.6.3",
+      "name": "openssl",
+      "version": "3.6.3",
+      "purl": "pkg:conda/conda-forge/openssl@3.6.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/orc@2.3.0",
+      "name": "orc",
+      "version": "2.3.0",
+      "purl": "pkg:conda/conda-forge/orc@2.3.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/pandas@3.0.3",
+      "name": "pandas",
+      "version": "3.0.3",
+      "purl": "pkg:conda/conda-forge/pandas@3.0.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/prometheus-cpp@1.3.0",
+      "name": "prometheus-cpp",
+      "version": "1.3.0",
+      "purl": "pkg:conda/conda-forge/prometheus-cpp@1.3.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/pyarrow@24.0.0",
+      "name": "pyarrow",
+      "version": "24.0.0",
+      "purl": "pkg:conda/conda-forge/pyarrow@24.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/pyarrow-core@24.0.0",
+      "name": "pyarrow-core",
+      "version": "24.0.0",
+      "purl": "pkg:conda/conda-forge/pyarrow-core@24.0.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/python@3.13.14",
+      "name": "python",
+      "version": "3.13.14",
+      "purl": "pkg:conda/conda-forge/python@3.13.14",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/python-dateutil@2.9.0.post0",
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "purl": "pkg:conda/conda-forge/python-dateutil@2.9.0.post0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/python-abi@3.13",
+      "name": "python_abi",
+      "version": "3.13",
+      "purl": "pkg:conda/conda-forge/python-abi@3.13",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/re2@2025.11.05",
+      "name": "re2",
+      "version": "2025.11.05",
+      "purl": "pkg:conda/conda-forge/re2@2025.11.05",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/readline@8.3",
+      "name": "readline",
+      "version": "8.3",
+      "purl": "pkg:conda/conda-forge/readline@8.3",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/s2n@1.7.4",
+      "name": "s2n",
+      "version": "1.7.4",
+      "purl": "pkg:conda/conda-forge/s2n@1.7.4",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/scipy@1.17.1",
+      "name": "scipy",
+      "version": "1.17.1",
+      "purl": "pkg:conda/conda-forge/scipy@1.17.1",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/six@1.17.0",
+      "name": "six",
+      "version": "1.17.0",
+      "purl": "pkg:conda/conda-forge/six@1.17.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/snappy@1.2.2",
+      "name": "snappy",
+      "version": "1.2.2",
+      "purl": "pkg:conda/conda-forge/snappy@1.2.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/structlog@26.1.0",
+      "name": "structlog",
+      "version": "26.1.0",
+      "purl": "pkg:conda/conda-forge/structlog@26.1.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "direct"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/tk@8.6.13",
+      "name": "tk",
+      "version": "8.6.13",
+      "purl": "pkg:conda/conda-forge/tk@8.6.13",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/typing-extensions@4.15.0",
+      "name": "typing-extensions",
+      "version": "4.15.0",
+      "purl": "pkg:conda/conda-forge/typing-extensions@4.15.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/typing-extensions@4.15.0",
+      "name": "typing_extensions",
+      "version": "4.15.0",
+      "purl": "pkg:conda/conda-forge/typing-extensions@4.15.0",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/tzdata@2025c",
+      "name": "tzdata",
+      "version": "2025c",
+      "purl": "pkg:conda/conda-forge/tzdata@2025c",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/zlib@1.3.2",
+      "name": "zlib",
+      "version": "1.3.2",
+      "purl": "pkg:conda/conda-forge/zlib@1.3.2",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:conda/conda-forge/zstd@1.5.7",
+      "name": "zstd",
+      "version": "1.5.7",
+      "purl": "pkg:conda/conda-forge/zstd@1.5.7",
+      "properties": [
+        {
+          "name": "cdx:dependency:type",
+          "value": "transitive"
+        },
+        {
+          "name": "cdx:package-manager",
+          "value": "conda"
+        },
+        {
+          "name": "cdx:environment",
+          "value": "data-wrangler"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:pypi/datawrangler@0.1.0",
+      "dependsOn": [
+        "pkg:conda/conda-forge/numpy@2.4.6",
+        "pkg:conda/conda-forge/openpyxl@3.1.5",
+        "pkg:conda/conda-forge/pandas@3.0.3",
+        "pkg:conda/conda-forge/pyarrow@24.0.0",
+        "pkg:conda/conda-forge/scipy@1.17.1",
+        "pkg:conda/conda-forge/structlog@26.1.0"
+      ]
+    }
+  ]
+}
